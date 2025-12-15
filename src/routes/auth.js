@@ -1,5 +1,6 @@
 const express = require('express');
 const Person = require('../models/Person');
+const { requireAuth, requireExpert, requireTeamMember } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -92,22 +93,38 @@ router.post('/logout', (req, res) => {
 });
 
 // Get current user
-router.get('/me', async (req, res) => {
+router.get('/me', requireAuth, async (req, res) => {
   try {
-    if (!req.session.userId) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    const person = await Person.findById(req.session.userId);
-    if (!person) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ user: person.toJSON() });
-
+    res.json({ user: req.user.toJSON() });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ error: 'Failed to get user information' });
+  }
+});
+
+// Protected endpoint - requires team member access or higher
+router.get('/profile', requireAuth, requireTeamMember, async (req, res) => {
+  try {
+    res.json({ 
+      message: 'Team member profile access',
+      user: req.user.toJSON() 
+    });
+  } catch (error) {
+    console.error('Profile error:', error);
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+// Protected endpoint - requires expert access
+router.get('/admin', requireAuth, requireExpert, async (req, res) => {
+  try {
+    res.json({ 
+      message: 'Expert admin access granted',
+      user: req.user.toJSON() 
+    });
+  } catch (error) {
+    console.error('Admin error:', error);
+    res.status(500).json({ error: 'Failed to access admin' });
   }
 });
 

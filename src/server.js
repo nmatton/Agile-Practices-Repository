@@ -104,9 +104,12 @@ process.on('SIGINT', async () => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`APR Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Only start the server if this file is run directly (not required as a module)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`APR Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
 
 module.exports = app;

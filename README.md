@@ -42,10 +42,9 @@ The Agile Practice Repository combines a comprehensive practice database with an
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- PostgreSQL (v12 or higher)
-- Redis (v6 or higher)
+- Docker and Docker Compose
 
-### Installation
+### Quick Start with Docker
 
 1. Clone the repository
 2. Install dependencies:
@@ -53,29 +52,40 @@ The Agile Practice Repository combines a comprehensive practice database with an
    npm install
    ```
 
-3. Configure environment variables in `.env`:
-   ```
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=agile_practice_repository
-   DB_USER=postgres
-   DB_PASSWORD=your_password
-   
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
-   
-   SESSION_SECRET=your-secret-key-change-in-production
+3. Start PostgreSQL and Redis with Docker:
+   ```bash
+   docker compose up -d
    ```
 
-4. Set up the database:
-   ```bash
-   npm run migrate
-   ```
+4. The database schema will be automatically loaded from `sql/db_sample.sql`
 
 5. Start the development server:
    ```bash
    npm run dev
    ```
+
+### Manual Setup (without Docker)
+
+If you prefer to install PostgreSQL and Redis manually:
+
+1. Install PostgreSQL (v12+) and Redis (v6+)
+2. Create database and user:
+   ```sql
+   CREATE DATABASE agile_practice_repository;
+   CREATE USER apr_user WITH PASSWORD 'apr_password';
+   GRANT ALL PRIVILEGES ON DATABASE agile_practice_repository TO apr_user;
+   ```
+3. Load the schema: `psql -U apr_user -d agile_practice_repository -f sql/db_sample.sql`
+4. Update `.env` with your database credentials
+5. Start Redis server
+6. Run `npm run dev`
+
+### Docker Commands
+
+- Start services: `docker-compose up -d`
+- Stop services: `docker-compose down`
+- View logs: `docker-compose logs -f`
+- Reset data: `docker-compose down -v && docker-compose up -d`
 
 ## API Endpoints
 
