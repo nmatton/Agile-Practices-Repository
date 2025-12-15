@@ -61,7 +61,10 @@ app.get('/health', async (req, res) => {
 
 // API routes
 const authRoutes = require('./routes/auth');
+const teamRoutes = require('./routes/teams');
+
 app.use('/api/auth', authRoutes);
+app.use('/api/teams', teamRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -70,6 +73,7 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       auth: '/api/auth',
+      teams: '/api/teams',
       api: '/api'
     }
   });
