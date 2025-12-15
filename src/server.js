@@ -62,9 +62,15 @@ app.get('/health', async (req, res) => {
 // API routes
 const authRoutes = require('./routes/auth');
 const teamRoutes = require('./routes/teams');
+const practiceRoutes = require('./routes/practices');
+const methodRoutes = require('./routes/methods');
+const activityRoutes = require('./routes/activities');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/practices', practiceRoutes);
+app.use('/api/methods', methodRoutes);
+app.use('/api/activities', activityRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -74,6 +80,9 @@ app.get('/', (req, res) => {
       health: '/health',
       auth: '/api/auth',
       teams: '/api/teams',
+      practices: '/api/practices',
+      methods: '/api/methods',
+      activities: '/api/activities',
       api: '/api'
     }
   });
