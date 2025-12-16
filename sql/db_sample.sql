@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS
     practiceAssociationType, roleUseType, bfProfileStatus, roleType, methodType,
     practiceMethod, practiceVersionActivity, metricPractice, practiceAssociation,
     roleUse, workproductPractice, recommendationGoal, affinityPractice,
-    PracticeVersionUniverse
+    PracticeVersionUniverse, practiceDifficultyFlag
 CASCADE;
 
 /********************************************/
@@ -369,6 +369,16 @@ CREATE TABLE PracticeVersionUniverse (
     universeId INTEGER NOT NULL REFERENCES Universe(id),
     isActive BOOLEAN,
     PRIMARY KEY (practiceVersionId, universeId)
+);
+
+CREATE TABLE practiceDifficultyFlag (
+    id SERIAL PRIMARY KEY,
+    personId INTEGER NOT NULL REFERENCES Person(id),
+    practiceVersionId INTEGER NOT NULL REFERENCES practiceVersion(id),
+    reason TEXT,
+    contextId INTEGER REFERENCES Context(id),
+    flaggedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (personId, practiceVersionId)
 );
 
 /********************************************/

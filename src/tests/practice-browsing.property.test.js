@@ -291,12 +291,15 @@ describe('Practice Browsing and Search - Property Tests', () => {
               // Check if the base name or description would match
               const nameMatch = p.name.toLowerCase().includes(lowerSearchTerm);
               const descMatch = p.description && p.description.toLowerCase().includes(lowerSearchTerm);
-              // Also ensure the search term doesn't match common suffixes we add
-              const suffixMatch = lowerSearchTerm.includes('_') || 
-                                 /\d/.test(lowerSearchTerm) || 
-                                 /[a-z0-9]{10,}/.test(lowerSearchTerm);
-              return nameMatch || descMatch || suffixMatch;
-            });
+              return nameMatch || descMatch;
+            }) && 
+            // Exclude single characters that might match random suffixes
+            lowerSearchTerm.length > 1 &&
+            // Exclude terms that contain common suffix patterns
+            !lowerSearchTerm.includes('_') && 
+            !/\d/.test(lowerSearchTerm) && 
+            // Exclude terms that are purely alphanumeric sequences that might match generated IDs
+            !/^[a-z0-9]+$/.test(lowerSearchTerm);
           }),
           async (data) => {
             // Clear database for this test iteration

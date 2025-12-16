@@ -8,23 +8,33 @@ describe('Team Management Integration Tests', () => {
 
   beforeAll(async () => {
     // Clean up test data in correct order (respecting foreign key constraints)
+    // First delete all records that reference Person
+    await pool.query('DELETE FROM practiceDifficultyFlag WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
     await pool.query('DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
     await pool.query('DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
     await pool.query('DELETE FROM bfprofile WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
+    await pool.query('DELETE FROM teammember WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
+    // Then delete team-related records
     await pool.query('DELETE FROM teammember WHERE teamid IN (SELECT id FROM team WHERE name LIKE $1)', ['Test%']);
     await pool.query('DELETE FROM universe WHERE teamid IN (SELECT id FROM team WHERE name LIKE $1)', ['Test%']);
     await pool.query('DELETE FROM team WHERE name LIKE $1', ['Test%']);
+    // Finally delete Person records
     await pool.query('DELETE FROM person WHERE email LIKE $1', ['test%']);
   });
 
   afterAll(async () => {
     // Clean up test data in correct order (respecting foreign key constraints)
+    // First delete all records that reference Person
+    await pool.query('DELETE FROM practiceDifficultyFlag WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
     await pool.query('DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
     await pool.query('DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
     await pool.query('DELETE FROM bfprofile WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
+    await pool.query('DELETE FROM teammember WHERE personid IN (SELECT id FROM person WHERE email LIKE $1)', ['test%']);
+    // Then delete team-related records
     await pool.query('DELETE FROM teammember WHERE teamid IN (SELECT id FROM team WHERE name LIKE $1)', ['Test%']);
     await pool.query('DELETE FROM universe WHERE teamid IN (SELECT id FROM team WHERE name LIKE $1)', ['Test%']);
     await pool.query('DELETE FROM team WHERE name LIKE $1', ['Test%']);
+    // Finally delete Person records
     await pool.query('DELETE FROM person WHERE email LIKE $1', ['test%']);
   });
 
