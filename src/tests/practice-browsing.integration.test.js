@@ -22,8 +22,8 @@ describe('Practice Browsing and Search Integration Tests', () => {
   describe('GET /api/practices - Enhanced listing with filters', () => {
     it('should handle search parameter', async () => {
       const mockPractices = [
-        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeid: 1, typename: 'Meeting' },
-        { id: 2, name: 'Sprint Planning', description: 'Plan the sprint', typeid: 1, typename: 'Meeting' }
+        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeId: 1 },
+        { id: 2, name: 'Sprint Planning', description: 'Plan the sprint', typeId: 1 }
       ];
 
       pool.query.mockResolvedValue({ rows: mockPractices });
@@ -42,7 +42,7 @@ describe('Practice Browsing and Search Integration Tests', () => {
 
     it('should handle goal filtering', async () => {
       const mockPractices = [
-        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeid: 1, typename: 'Meeting' }
+        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeId: 1 }
       ];
 
       pool.query.mockResolvedValue({ rows: mockPractices });
@@ -61,7 +61,7 @@ describe('Practice Browsing and Search Integration Tests', () => {
 
     it('should handle type filtering', async () => {
       const mockPractices = [
-        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeid: 1, typename: 'Meeting' }
+        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeId: 1 }
       ];
 
       pool.query.mockResolvedValue({ rows: mockPractices });
@@ -80,7 +80,7 @@ describe('Practice Browsing and Search Integration Tests', () => {
 
     it('should handle multiple filters combined', async () => {
       const mockPractices = [
-        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeid: 1, typename: 'Meeting' }
+        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeId: 1 }
       ];
 
       pool.query.mockResolvedValue({ rows: mockPractices });
@@ -101,7 +101,7 @@ describe('Practice Browsing and Search Integration Tests', () => {
   describe('GET /api/practices/search - Dedicated search endpoint', () => {
     it('should search practices by query parameter', async () => {
       const mockPractices = [
-        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeid: 1, typename: 'Meeting' }
+        { id: 1, name: 'Daily Standup', description: 'Daily team meeting', typeId: 1 }
       ];
 
       pool.query.mockResolvedValue({ rows: mockPractices });

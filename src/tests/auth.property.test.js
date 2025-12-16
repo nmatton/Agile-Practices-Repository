@@ -21,12 +21,18 @@ const pool = require('../config/database');
 
 describe('Authentication Security - Property Tests', () => {
   beforeEach(async () => {
-    // Clean up test data
+    // Clean up test data in correct order (respecting foreign key constraints)
+    await pool.query("DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
+    await pool.query("DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
+    await pool.query("DELETE FROM bfprofile WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
     await pool.query("DELETE FROM Person WHERE email LIKE '%test_%'");
   });
 
   afterAll(async () => {
-    // Clean up test data
+    // Clean up test data in correct order (respecting foreign key constraints)
+    await pool.query("DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
+    await pool.query("DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
+    await pool.query("DELETE FROM bfprofile WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
     await pool.query("DELETE FROM Person WHERE email LIKE '%test_%'");
   });
 

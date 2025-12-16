@@ -6,6 +6,9 @@ const fc = require('fast-check');
  * 
  * **Feature: agile-practice-repository, Property 6: Team invitations are sent**
  * **Validates: Requirements 3.2**
+ * 
+ * **Feature: agile-practice-repository, Property 17: Practice selection adds to universe**
+ * **Validates: Requirements 12.1**
  */
 
 // Mock database for testing team operations
@@ -13,8 +16,15 @@ const mockTeamDatabase = {
   teams: new Map(),
   teamMembers: new Map(), // teamId -> Set of personIds
   invitations: [], // Array of sent invitations
+  universes: new Map(), // universeId -> universe object
+  practices: new Map(), // practiceId -> practice object
+  practiceVersions: new Map(), // practiceVersionId -> practiceVersion object
+  practiceVersionUniverses: new Map(), // universeId -> Set of practiceVersionIds
   nextTeamId: 1,
   nextPersonId: 1,
+  nextUniverseId: 1,
+  nextPracticeId: 1,
+  nextPracticeVersionId: 1,
   
   async createPerson(userData) {
     const person = {
@@ -93,12 +103,159 @@ const mockTeamDatabase = {
     return this.invitations.filter(inv => inv.teamId === teamId);
   },
 
+  async createUniverse({ teamId, name, description }) {
+    if (!teamId || !name) {
+      throw new Error('Team ID and universe name are required');
+    }
+
+    // Check if team exists
+    if (!this.teams.has(teamId)) {
+      throw new Error('Team does not exist');
+    }
+
+    // Check if universe name already exists for this team
+    for (const universe of this.universes.values()) {
+      if (universe.teamId === teamId && universe.name === name) {
+        throw new Error('Universe name already exists for this team');
+      }
+    }
+
+    const universe = {
+      id: this.nextUniverseId++,
+      teamId,
+      name,
+      description: description || null
+    };
+
+    this.universes.set(universe.id, universe);
+    
+    // Initialize practice version set for this universe
+    if (!this.practiceVersionUniverses.has(universe.id)) {
+      this.practiceVersionUniverses.set(universe.id, new Set());
+    }
+
+    return universe;
+  },
+
+  async createPractice({ name, objective, description }) {
+    if (!name) {
+      throw new Error('Practice name is required');
+    }
+
+    const practice = {
+      id: this.nextPracticeId++,
+      name,
+      objective: objective || null,
+      description: description || null
+    };
+
+    this.practices.set(practice.id, practice);
+    return practice;
+  },
+
+  async createPracticeVersion({ practiceId, universeId, versionName }) {
+    if (!practiceId || !universeId || !versionName) {
+      throw new Error('Practice ID, universe ID, and version name are required');
+    }
+
+    // Check if practice and universe exist
+    if (!this.practices.has(practiceId)) {
+      throw new Error('Practice does not exist');
+    }
+    if (!this.universes.has(universeId)) {
+      throw new Error('Universe does not exist');
+    }
+
+    const practiceVersion = {
+      id: this.nextPracticeVersionId++,
+      practiceId,
+      universeId,
+      versionName,
+      versionTimestamp: new Date()
+    };
+
+    this.practiceVersions.set(practiceVersion.id, practiceVersion);
+    return practiceVersion;
+  },
+
+  async addPracticeToUniverse(universeId, practiceVersionId, isActive = true) {
+    if (!universeId || !practiceVersionId) {
+      throw new Error('Universe ID and practice version ID are required');
+    }
+
+    // Check if universe and practice version exist
+    if (!this.universes.has(universeId)) {
+      throw new Error('Universe does not exist');
+    }
+    if (!this.practiceVersions.has(practiceVersionId)) {
+      throw new Error('Practice version does not exist');
+    }
+
+    // Add practice to universe
+    if (!this.practiceVersionUniverses.has(universeId)) {
+      this.practiceVersionUniverses.set(universeId, new Set());
+    }
+    
+    if (isActive) {
+      this.practiceVersionUniverses.get(universeId).add(practiceVersionId);
+    }
+
+    return true;
+  },
+
+  async removePracticeFromUniverse(universeId, practiceVersionId) {
+    if (!universeId || !practiceVersionId) {
+      throw new Error('Universe ID and practice version ID are required');
+    }
+
+    const universePractices = this.practiceVersionUniverses.get(universeId);
+    if (!universePractices) {
+      return false;
+    }
+
+    return universePractices.delete(practiceVersionId);
+  },
+
+  async getActivePracticesForUniverse(universeId) {
+    const universePractices = this.practiceVersionUniverses.get(universeId);
+    if (!universePractices) {
+      return [];
+    }
+
+    const activePractices = [];
+    for (const practiceVersionId of universePractices) {
+      const practiceVersion = this.practiceVersions.get(practiceVersionId);
+      if (practiceVersion) {
+        const practice = this.practices.get(practiceVersion.practiceId);
+        activePractices.push({
+          practiceVersionId,
+          practiceVersion,
+          practice
+        });
+      }
+    }
+
+    return activePractices;
+  },
+
+  async isPracticeInUniverse(universeId, practiceVersionId) {
+    const universePractices = this.practiceVersionUniverses.get(universeId);
+    return universePractices ? universePractices.has(practiceVersionId) : false;
+  },
+
   clear() {
     this.teams.clear();
     this.teamMembers.clear();
     this.invitations = [];
+    this.universes.clear();
+    this.practices.clear();
+    this.practiceVersions.clear();
+    this.practiceVersionUniverses.clear();
     this.nextTeamId = 1;
     this.nextPersonId = 1;
+    this.nextUniverseId = 1;
+    this.nextPracticeId = 1;
+    this.nextPracticeVersionId = 1;
   }
 };
 
@@ -345,6 +502,284 @@ describe('Team Management - Property Tests', () => {
           }
         ),
         { numRuns: 50 }
+      );
+    });
+  });
+
+  describe('Property 17: Practice selection adds to universe', () => {
+    it('should add practice to team universe when selected by team member for any valid practice and universe', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            teamName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            creatorId: fc.integer({ min: 1, max: 1000 }),
+            universeName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            practiceName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            practiceObjective: fc.option(fc.string({ maxLength: 200 })),
+            practiceDescription: fc.option(fc.string({ maxLength: 500 })),
+            versionName: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0)
+          }),
+          async (testData) => {
+            // Create unique names to avoid conflicts
+            const uniqueTeamName = `${testData.teamName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            const uniqueUniverseName = `${testData.universeName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            const uniquePracticeName = `${testData.practiceName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            
+            // Step 1: Create team
+            const team = await mockTeamDatabase.createTeam({
+              name: uniqueTeamName,
+              description: 'Test team for practice selection',
+              creatorId: testData.creatorId
+            });
+            
+            // Step 2: Create universe for the team
+            const universe = await mockTeamDatabase.createUniverse({
+              teamId: team.id,
+              name: uniqueUniverseName,
+              description: 'Test universe for practice selection'
+            });
+            
+            // Step 3: Create practice
+            const practice = await mockTeamDatabase.createPractice({
+              name: uniquePracticeName,
+              objective: testData.practiceObjective,
+              description: testData.practiceDescription
+            });
+            
+            // Step 4: Create practice version
+            const practiceVersion = await mockTeamDatabase.createPracticeVersion({
+              practiceId: practice.id,
+              universeId: universe.id,
+              versionName: testData.versionName
+            });
+            
+            // Step 5: Add practice to universe (simulate team member selecting practice)
+            const addResult = await mockTeamDatabase.addPracticeToUniverse(
+              universe.id, 
+              practiceVersion.id, 
+              true
+            );
+            
+            // Verify practice was added successfully
+            expect(addResult).toBe(true);
+            
+            // Verify practice is now in the universe
+            const isPracticeInUniverse = await mockTeamDatabase.isPracticeInUniverse(
+              universe.id, 
+              practiceVersion.id
+            );
+            expect(isPracticeInUniverse).toBe(true);
+            
+            // Verify practice appears in active practices list
+            const activePractices = await mockTeamDatabase.getActivePracticesForUniverse(universe.id);
+            expect(activePractices).toHaveLength(1);
+            expect(activePractices[0].practiceVersionId).toBe(practiceVersion.id);
+            expect(activePractices[0].practice.name).toBe(uniquePracticeName);
+            expect(activePractices[0].practiceVersion.versionName).toBe(testData.versionName);
+            
+            // Verify universe belongs to the correct team
+            expect(universe.teamId).toBe(team.id);
+            
+            // Verify team creator is still a member
+            const isMember = await mockTeamDatabase.isMember(team.id, testData.creatorId);
+            expect(isMember).toBe(true);
+          }
+        ),
+        { numRuns: 100 }
+      );
+    });
+
+    it('should reject adding practice to non-existent universe', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            universeId: fc.integer({ min: 9999, max: 99999 }), // Non-existent universe ID
+            practiceVersionId: fc.integer({ min: 1, max: 1000 })
+          }),
+          async (testData) => {
+            await expect(mockTeamDatabase.addPracticeToUniverse(
+              testData.universeId, 
+              testData.practiceVersionId
+            )).rejects.toThrow('Universe does not exist');
+          }
+        ),
+        { numRuns: 50 }
+      );
+    });
+
+    it('should reject adding non-existent practice version to universe', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            teamName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            creatorId: fc.integer({ min: 1, max: 1000 }),
+            universeName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            practiceVersionId: fc.integer({ min: 9999, max: 99999 }) // Non-existent practice version ID
+          }),
+          async (testData) => {
+            // Create unique names
+            const uniqueTeamName = `${testData.teamName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            const uniqueUniverseName = `${testData.universeName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            
+            // Create team and universe
+            const team = await mockTeamDatabase.createTeam({
+              name: uniqueTeamName,
+              description: 'Test team',
+              creatorId: testData.creatorId
+            });
+            
+            const universe = await mockTeamDatabase.createUniverse({
+              teamId: team.id,
+              name: uniqueUniverseName,
+              description: 'Test universe'
+            });
+            
+            // Try to add non-existent practice version
+            await expect(mockTeamDatabase.addPracticeToUniverse(
+              universe.id, 
+              testData.practiceVersionId
+            )).rejects.toThrow('Practice version does not exist');
+          }
+        ),
+        { numRuns: 50 }
+      );
+    });
+
+    it('should handle multiple practices in the same universe', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            teamName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            creatorId: fc.integer({ min: 1, max: 1000 }),
+            universeName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            practiceCount: fc.integer({ min: 2, max: 5 })
+          }),
+          async (testData) => {
+            // Create unique names
+            const uniqueTeamName = `${testData.teamName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            const uniqueUniverseName = `${testData.universeName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            
+            // Create team and universe
+            const team = await mockTeamDatabase.createTeam({
+              name: uniqueTeamName,
+              description: 'Test team',
+              creatorId: testData.creatorId
+            });
+            
+            const universe = await mockTeamDatabase.createUniverse({
+              teamId: team.id,
+              name: uniqueUniverseName,
+              description: 'Test universe'
+            });
+            
+            // Create and add multiple practices
+            const practiceVersionIds = [];
+            for (let i = 0; i < testData.practiceCount; i++) {
+              const practice = await mockTeamDatabase.createPractice({
+                name: `Practice_${i}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+                objective: `Objective ${i}`,
+                description: `Description ${i}`
+              });
+              
+              const practiceVersion = await mockTeamDatabase.createPracticeVersion({
+                practiceId: practice.id,
+                universeId: universe.id,
+                versionName: `Version_${i}`
+              });
+              
+              await mockTeamDatabase.addPracticeToUniverse(universe.id, practiceVersion.id, true);
+              practiceVersionIds.push(practiceVersion.id);
+            }
+            
+            // Verify all practices are in the universe
+            const activePractices = await mockTeamDatabase.getActivePracticesForUniverse(universe.id);
+            expect(activePractices).toHaveLength(testData.practiceCount);
+            
+            // Verify each practice is correctly stored
+            for (const practiceVersionId of practiceVersionIds) {
+              const isPracticeInUniverse = await mockTeamDatabase.isPracticeInUniverse(
+                universe.id, 
+                practiceVersionId
+              );
+              expect(isPracticeInUniverse).toBe(true);
+            }
+          }
+        ),
+        { numRuns: 50 }
+      );
+    });
+
+    it('should support removing practices from universe', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            teamName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            creatorId: fc.integer({ min: 1, max: 1000 }),
+            universeName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            practiceName: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
+            versionName: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0)
+          }),
+          async (testData) => {
+            // Create unique names
+            const uniqueTeamName = `${testData.teamName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            const uniqueUniverseName = `${testData.universeName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            const uniquePracticeName = `${testData.practiceName}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            
+            // Create team, universe, practice, and practice version
+            const team = await mockTeamDatabase.createTeam({
+              name: uniqueTeamName,
+              description: 'Test team',
+              creatorId: testData.creatorId
+            });
+            
+            const universe = await mockTeamDatabase.createUniverse({
+              teamId: team.id,
+              name: uniqueUniverseName,
+              description: 'Test universe'
+            });
+            
+            const practice = await mockTeamDatabase.createPractice({
+              name: uniquePracticeName,
+              objective: 'Test objective',
+              description: 'Test description'
+            });
+            
+            const practiceVersion = await mockTeamDatabase.createPracticeVersion({
+              practiceId: practice.id,
+              universeId: universe.id,
+              versionName: testData.versionName
+            });
+            
+            // Add practice to universe
+            await mockTeamDatabase.addPracticeToUniverse(universe.id, practiceVersion.id, true);
+            
+            // Verify practice is in universe
+            let isPracticeInUniverse = await mockTeamDatabase.isPracticeInUniverse(
+              universe.id, 
+              practiceVersion.id
+            );
+            expect(isPracticeInUniverse).toBe(true);
+            
+            // Remove practice from universe
+            const removeResult = await mockTeamDatabase.removePracticeFromUniverse(
+              universe.id, 
+              practiceVersion.id
+            );
+            expect(removeResult).toBe(true);
+            
+            // Verify practice is no longer in universe
+            isPracticeInUniverse = await mockTeamDatabase.isPracticeInUniverse(
+              universe.id, 
+              practiceVersion.id
+            );
+            expect(isPracticeInUniverse).toBe(false);
+            
+            // Verify active practices list is empty
+            const activePractices = await mockTeamDatabase.getActivePracticesForUniverse(universe.id);
+            expect(activePractices).toHaveLength(0);
+          }
+        ),
+        { numRuns: 100 }
       );
     });
   });
