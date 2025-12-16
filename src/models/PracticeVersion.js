@@ -60,6 +60,25 @@ class PracticeVersion {
     return result.rows.map(row => new PracticeVersion(row));
   }
 
+  static async findAll({ limit = 1000, offset = 0 } = {}) {
+    const result = await pool.query(
+      `SELECT pv.*, p.name as practiceName, p.objective, p.description as practiceDescription
+       FROM practiceVersion pv
+       JOIN Practice p ON pv.practiceId = p.id
+       ORDER BY pv.versionTimestamp DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    return result.rows.map(row => {
+      const pv = new PracticeVersion(row);
+      pv.practiceName = row.practicename;
+      pv.practiceObjective = row.objective;
+      pv.practiceDescription = row.practicedescription;
+      return pv;
+    });
+  }
+
   static async findPublished({ limit = 50, offset = 0 } = {}) {
     // For now, we'll consider all practice versions as potentially published
     // In a real implementation, you might add a status column to track draft vs published
