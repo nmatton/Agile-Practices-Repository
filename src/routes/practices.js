@@ -5,12 +5,23 @@ const PracticeVersion = require('../models/PracticeVersion');
 const Activity = require('../models/Activity');
 const { requireAuth } = require('../middleware/auth');
 
-// GET /api/practices - List all practices
+// GET /api/practices - List all practices with search and filtering
 router.get('/', async (req, res) => {
   try {
-    const { typeId, limit = 50, offset = 0 } = req.query;
-    const practices = await Practice.findAll({ 
+    const { 
+      typeId, 
+      goalId, 
+      search, 
+      category,
+      limit = 50, 
+      offset = 0 
+    } = req.query;
+    
+    const practices = await Practice.findAllWithFilters({ 
       typeId: typeId ? parseInt(typeId) : undefined,
+      goalId: goalId ? parseInt(goalId) : undefined,
+      search: search || undefined,
+      category: category || undefined,
       limit: parseInt(limit), 
       offset: parseInt(offset) 
     });
@@ -34,7 +45,62 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/practices/:id - Get practice by ID
+// GET /api/practices/search - Search practices by name and description
+router.get('/search', async (req, res) => {
+  try {
+    const { q, limit = 50, offset = 0 } = req.query;
+    
+    if (!q || q.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Search query is required'
+      });
+    }
+    
+    const practices = await Practice.search(q.trim(), {
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+    
+    res.json({
+      success: true,
+      data: practices,
+      pagination: {
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        total: practices.length
+      }
+    });
+  } catch (error) {
+    console.error('Error searching practices:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to search practices',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/practices/categories - Get practices grouped by categories
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = await Practice.getByCategories();
+    
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    console.error('Error fetching practice categories:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch practice categories',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/practices/:id - Get practice by ID with complete details
 router.get('/:id', async (req, res) => {
   try {
     const practice = await Practice.findById(req.params.id);
@@ -46,15 +112,12 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    // Get versions for this practice
-    const versions = await practice.getVersions();
+    // Get complete practice details including all associated information
+    const practiceDetails = await practice.getCompleteDetails();
     
     res.json({
       success: true,
-      data: {
-        ...practice.toJSON(),
-        versions
-      }
+      data: practiceDetails
     });
   } catch (error) {
     console.error('Error fetching practice:', error);
