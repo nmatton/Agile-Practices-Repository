@@ -148,6 +148,42 @@ class PersonalityService {
   }
 
   /**
+   * Recalculate affinities for all team members when team composition changes
+   * @param {number} teamId - The team's ID
+   * @returns {Array} Updated affinity scores for all team members
+   */
+  static async recalculateTeamAffinities(teamId) {
+    const Team = require('../models/Team');
+    const team = await Team.findById(teamId);
+    
+    if (!team) {
+      throw new Error('Team not found');
+    }
+
+    const members = await team.getMembers();
+    const results = [];
+
+    for (const member of members) {
+      try {
+        const affinities = await this.recalculateAffinities(member.id);
+        results.push({
+          personId: member.id,
+          affinities,
+          success: true
+        });
+      } catch (error) {
+        results.push({
+          personId: member.id,
+          error: error.message,
+          success: false
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
    * Get personality profile with affinity scores for a person
    * @param {number} personId - The person's ID
    * @returns {Object} Complete personality profile
@@ -173,7 +209,7 @@ class PersonalityService {
    */
   static async calculateTeamAffinity(teamMemberIds, practiceVersionId) {
     if (!Array.isArray(teamMemberIds) || teamMemberIds.length === 0) {
-      return { average: 0, minimum: 0, maximum: 0, standardDeviation: 0, memberCount: 0 };
+      return { average: 0, minimum: 0, maximum: 0, standardDeviation: 0, memberCount: 0, individualScores: [] };
     }
 
     const affinities = [];
@@ -186,7 +222,7 @@ class PersonalityService {
     }
 
     if (affinities.length === 0) {
-      return { average: 0, minimum: 0, maximum: 0, standardDeviation: 0, memberCount: 0 };
+      return { average: 0, minimum: 0, maximum: 0, standardDeviation: 0, memberCount: teamMemberIds.length, individualScores: [] };
     }
 
     const average = affinities.reduce((sum, score) => sum + score, 0) / affinities.length;
@@ -202,7 +238,7 @@ class PersonalityService {
       minimum,
       maximum,
       standardDeviation: Math.round(standardDeviation * 100) / 100,
-      memberCount: affinities.length,
+      memberCount: teamMemberIds.length,
       individualScores: affinities
     };
   }

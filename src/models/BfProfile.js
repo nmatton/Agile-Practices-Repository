@@ -97,7 +97,24 @@ class BfProfile {
       values
     );
 
-    return new BfProfile(result.rows[0]);
+    const updatedProfile = new BfProfile(result.rows[0]);
+
+    // Trigger automatic recalculation of affinities if profile is now complete
+    if (updatedProfile.isComplete()) {
+      // Import here to avoid circular dependency
+      const PersonalityService = require('../services/personalityService');
+      
+      // Recalculate affinities asynchronously (don't wait for completion)
+      setImmediate(async () => {
+        try {
+          await PersonalityService.recalculateAffinities(updatedProfile.personId);
+        } catch (error) {
+          console.error('Error auto-recalculating affinities:', error);
+        }
+      });
+    }
+
+    return updatedProfile;
   }
 
   // Calculate Big Five scores from survey results

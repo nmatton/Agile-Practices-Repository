@@ -65,12 +65,14 @@ const teamRoutes = require('./routes/teams');
 const practiceRoutes = require('./routes/practices');
 const methodRoutes = require('./routes/methods');
 const activityRoutes = require('./routes/activities');
+const affinityRoutes = require('./routes/affinity');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/practices', practiceRoutes);
 app.use('/api/methods', methodRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/affinity', affinityRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -83,6 +85,7 @@ app.get('/', (req, res) => {
       practices: '/api/practices',
       methods: '/api/methods',
       activities: '/api/activities',
+      affinity: '/api/affinity',
       api: '/api'
     }
   });

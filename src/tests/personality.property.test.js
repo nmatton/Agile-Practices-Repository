@@ -2,25 +2,28 @@ const fc = require('fast-check');
 const pool = require('../config/database');
 const BfProfile = require('../models/BfProfile');
 const AffinitySurveyResults = require('../models/AffinitySurveyResults');
+const PersonPracticeAffinity = require('../models/PersonPracticeAffinity');
 const PersonalityService = require('../services/personalityService');
 const Person = require('../models/Person');
+const Team = require('../models/Team');
+const PracticeVersion = require('../models/PracticeVersion');
 
 /**
  * **Feature: agile-practice-repository, Property 14: Big Five calculation and storage**
  * **Validates: Requirements 10.1**
+ * 
+ * **Feature: agile-practice-repository, Property 15: Affinity recalculation on profile updates**
+ * **Validates: Requirements 11.1**
+ * 
+ * **Feature: agile-practice-repository, Property 16: Team affinity aggregation**
+ * **Validates: Requirements 11.2**
  */
 
 describe('Personality Profiling - Property Tests', () => {
   let testPersonId;
 
   beforeEach(async () => {
-    // Clean up test data
-    await pool.query("DELETE FROM personPracticeAffinity WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
-    await pool.query("DELETE FROM affinitySurveyResults WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
-    await pool.query("DELETE FROM bfProfile WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
-    await pool.query("DELETE FROM Person WHERE email LIKE '%test_personality_%'");
-
-    // Create a test person
+    // Create a test person first
     const testPerson = await Person.create({
       name: 'Test Personality User',
       email: `test_personality_${Date.now()}_${Math.random().toString(36).substring(2, 11)}@example.com`,
@@ -30,8 +33,18 @@ describe('Personality Profiling - Property Tests', () => {
     testPersonId = testPerson.id;
   });
 
+  afterEach(async () => {
+    // Clean up test data in correct order (child tables first)
+    if (testPersonId) {
+      await pool.query("DELETE FROM personPracticeAffinity WHERE personId = $1", [testPersonId]);
+      await pool.query("DELETE FROM affinitySurveyResults WHERE personId = $1", [testPersonId]);
+      await pool.query("DELETE FROM bfProfile WHERE personId = $1", [testPersonId]);
+      await pool.query("DELETE FROM Person WHERE id = $1", [testPersonId]);
+    }
+  });
+
   afterAll(async () => {
-    // Clean up test data
+    // Final cleanup
     await pool.query("DELETE FROM personPracticeAffinity WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
     await pool.query("DELETE FROM affinitySurveyResults WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
     await pool.query("DELETE FROM bfProfile WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
@@ -266,6 +279,440 @@ describe('Personality Profiling - Property Tests', () => {
           }
         ),
         { numRuns: 50 }
+      );
+    });
+  });
+
+  describe('Property 15: Affinity recalculation on profile updates', () => {
+    it('should recalculate affinities when Big Five profile is updated', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            o: fc.float({ min: 0, max: 1 }),
+            c: fc.float({ min: 0, max: 1 }),
+            e: fc.float({ min: 0, max: 1 }),
+            a: fc.float({ min: 0, max: 1 }),
+            n: fc.float({ min: 0, max: 1 })
+          }),
+          async (bigFiveScores) => {
+            // Create a complete Big Five profile
+            const bfProfile = await BfProfile.create({
+              personId: testPersonId,
+              statusId: 3,
+              ...bigFiveScores
+            });
+
+            // Get initial affinity count
+            const initialAffinities = await PersonPracticeAffinity.findByPersonId(testPersonId);
+            const initialCount = initialAffinities.length;
+
+            // Update the profile with new scores
+            const updatedScores = {
+              o: Math.min(1, bigFiveScores.o + 0.1),
+              c: Math.min(1, bigFiveScores.c + 0.1),
+              e: Math.min(1, bigFiveScores.e + 0.1),
+              a: Math.min(1, bigFiveScores.a + 0.1),
+              n: Math.min(1, bigFiveScores.n + 0.1)
+            };
+
+            await bfProfile.update(updatedScores);
+
+            // Wait a bit for async recalculation to complete
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Check that affinities were recalculated
+            const updatedAffinities = await PersonPracticeAffinity.findByPersonId(testPersonId);
+            
+            // Should have affinities for available practices
+            expect(updatedAffinities.length).toBeGreaterThanOrEqual(0);
+            
+            // Each affinity should be within valid range
+            updatedAffinities.forEach(affinity => {
+              expect(affinity.affinity).toBeGreaterThanOrEqual(0);
+              expect(affinity.affinity).toBeLessThanOrEqual(100);
+              expect(affinity.personId).toBe(testPersonId);
+              expect(typeof affinity.practiceVersionId).toBe('number');
+            });
+
+            // If there are practice versions available, we should have affinities
+            const practiceVersions = await PracticeVersion.findAll();
+            if (practiceVersions.length > 0) {
+              expect(updatedAffinities.length).toBeGreaterThan(0);
+              expect(updatedAffinities.length).toBeLessThanOrEqual(practiceVersions.length);
+            }
+          }
+        ),
+        { numRuns: 50 }
+      );
+    });
+
+    it('should not recalculate affinities for incomplete profiles', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            o: fc.option(fc.float({ min: 0, max: 1 }), { nil: null }),
+            c: fc.option(fc.float({ min: 0, max: 1 }), { nil: null }),
+            e: fc.option(fc.float({ min: 0, max: 1 }), { nil: null }),
+            a: fc.option(fc.float({ min: 0, max: 1 }), { nil: null }),
+            n: fc.option(fc.float({ min: 0, max: 1 }), { nil: null })
+          }).filter(scores => {
+            // Ensure at least one score is null (incomplete profile)
+            return Object.values(scores).some(score => score === null);
+          }),
+          async (incompleteScores) => {
+            // Create an incomplete profile
+            const bfProfile = await BfProfile.create({
+              personId: testPersonId,
+              statusId: 2, // Incomplete status
+              ...incompleteScores
+            });
+
+            // Get initial affinity count
+            const initialAffinities = await PersonPracticeAffinity.findByPersonId(testPersonId);
+            const initialCount = initialAffinities.length;
+
+            // Update the profile (still incomplete)
+            await bfProfile.update({ statusId: 2 });
+
+            // Wait a bit for any potential async operations
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // Affinity count should remain the same (no recalculation for incomplete profiles)
+            const finalAffinities = await PersonPracticeAffinity.findByPersonId(testPersonId);
+            expect(finalAffinities.length).toBe(initialCount);
+          }
+        ),
+        { numRuns: 30 }
+      );
+    });
+
+    it('should maintain affinity consistency across multiple profile updates', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.tuple(
+            fc.record({
+              o: fc.float({ min: 0, max: 1 }),
+              c: fc.float({ min: 0, max: 1 }),
+              e: fc.float({ min: 0, max: 1 }),
+              a: fc.float({ min: 0, max: 1 }),
+              n: fc.float({ min: 0, max: 1 })
+            }),
+            fc.array(
+              fc.record({
+                o: fc.float({ min: 0, max: 1 }),
+                c: fc.float({ min: 0, max: 1 }),
+                e: fc.float({ min: 0, max: 1 }),
+                a: fc.float({ min: 0, max: 1 }),
+                n: fc.float({ min: 0, max: 1 })
+              }),
+              { minLength: 1, maxLength: 3 }
+            )
+          ),
+          async ([initialScores, updateSequence]) => {
+            // Create initial profile
+            const bfProfile = await BfProfile.create({
+              personId: testPersonId,
+              statusId: 3,
+              ...initialScores
+            });
+
+            // Wait for initial recalculation
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Apply sequence of updates
+            let currentProfile = bfProfile;
+            for (const updateScores of updateSequence) {
+              currentProfile = await currentProfile.update(updateScores);
+              await new Promise(resolve => setTimeout(resolve, 50));
+            }
+
+            // Final affinities should be consistent
+            const finalAffinities = await PersonPracticeAffinity.findByPersonId(testPersonId);
+            
+            // All affinities should be valid
+            finalAffinities.forEach(affinity => {
+              expect(affinity.affinity).toBeGreaterThanOrEqual(0);
+              expect(affinity.affinity).toBeLessThanOrEqual(100);
+              expect(affinity.personId).toBe(testPersonId);
+              expect(Number.isInteger(affinity.affinity)).toBe(true);
+            });
+
+            // Should not have duplicate affinities for the same practice
+            const practiceIds = finalAffinities.map(a => a.practiceVersionId);
+            const uniquePracticeIds = [...new Set(practiceIds)];
+            expect(practiceIds.length).toBe(uniquePracticeIds.length);
+          }
+        ),
+        { numRuns: 30 }
+      );
+    });
+  });
+
+  describe('Property 16: Team affinity aggregation', () => {
+    let testTeamId;
+    let teamMemberIds = [];
+
+    beforeEach(async () => {
+      // Clean up any existing test teams
+      await pool.query("DELETE FROM teamMember WHERE teamId IN (SELECT id FROM Team WHERE name LIKE '%Test Affinity Team%')");
+      await pool.query("DELETE FROM Team WHERE name LIKE '%Test Affinity Team%'");
+
+      // Create a test team with the test person as creator
+      const testTeam = await Team.create({
+        name: `Test Affinity Team ${Date.now()}`,
+        description: 'Team for testing affinity aggregation',
+        creatorId: testPersonId
+      });
+      testTeamId = testTeam.id;
+
+      // Create additional team members
+      teamMemberIds = [testPersonId]; // Include the main test person
+      
+      for (let i = 0; i < 2; i++) {
+        const member = await Person.create({
+          name: `Team Member ${i + 1}`,
+          email: `team_member_${i + 1}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}@example.com`,
+          password: 'testpassword123',
+          roleId: 2
+        });
+        teamMemberIds.push(member.id);
+      }
+
+      // Add additional members to team (testPersonId is already added as creator)
+      for (const memberId of teamMemberIds.slice(1)) {
+        await testTeam.addMember(memberId);
+      }
+    });
+
+    afterEach(async () => {
+      // Clean up team data
+      if (testTeamId) {
+        await pool.query("DELETE FROM teamMember WHERE teamId = $1", [testTeamId]);
+        await pool.query("DELETE FROM Team WHERE id = $1", [testTeamId]);
+      }
+    });
+
+    it('should calculate team affinity statistics correctly for any practice', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.array(
+            fc.record({
+              o: fc.float({ min: 0, max: 1 }),
+              c: fc.float({ min: 0, max: 1 }),
+              e: fc.float({ min: 0, max: 1 }),
+              a: fc.float({ min: 0, max: 1 }),
+              n: fc.float({ min: 0, max: 1 })
+            }),
+            { minLength: teamMemberIds.length, maxLength: teamMemberIds.length }
+          ),
+          async (memberProfiles) => {
+            // Create profiles for all team members
+            for (let i = 0; i < teamMemberIds.length; i++) {
+              await BfProfile.create({
+                personId: teamMemberIds[i],
+                statusId: 3,
+                ...memberProfiles[i]
+              });
+            }
+
+            // Wait for affinity calculations
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            // Get available practice versions
+            const practiceVersions = await PracticeVersion.findAll();
+            
+            if (practiceVersions.length > 0) {
+              const practiceVersionId = practiceVersions[0].id;
+              
+              // Calculate team affinity
+              const teamAffinity = await PersonalityService.calculateTeamAffinity(
+                teamMemberIds, 
+                practiceVersionId
+              );
+
+              // Verify team affinity structure
+              expect(teamAffinity).toHaveProperty('average');
+              expect(teamAffinity).toHaveProperty('minimum');
+              expect(teamAffinity).toHaveProperty('maximum');
+              expect(teamAffinity).toHaveProperty('standardDeviation');
+              expect(teamAffinity).toHaveProperty('memberCount');
+              expect(teamAffinity).toHaveProperty('individualScores');
+
+              // Verify statistical properties
+              expect(teamAffinity.memberCount).toBe(teamMemberIds.length);
+              expect(teamAffinity.individualScores.length).toBeLessThanOrEqual(teamMemberIds.length);
+              
+              if (teamAffinity.individualScores.length > 0) {
+                // Average should be within min-max range
+                expect(teamAffinity.average).toBeGreaterThanOrEqual(teamAffinity.minimum);
+                expect(teamAffinity.average).toBeLessThanOrEqual(teamAffinity.maximum);
+                
+                // All scores should be within valid range
+                teamAffinity.individualScores.forEach(score => {
+                  expect(score).toBeGreaterThanOrEqual(0);
+                  expect(score).toBeLessThanOrEqual(100);
+                });
+                
+                // Standard deviation should be non-negative
+                expect(teamAffinity.standardDeviation).toBeGreaterThanOrEqual(0);
+                
+                // Min and max should be from the individual scores
+                const actualMin = Math.min(...teamAffinity.individualScores);
+                const actualMax = Math.max(...teamAffinity.individualScores);
+                expect(teamAffinity.minimum).toBe(actualMin);
+                expect(teamAffinity.maximum).toBe(actualMax);
+                
+                // Average should match calculated average
+                const calculatedAverage = teamAffinity.individualScores.reduce((sum, score) => sum + score, 0) / teamAffinity.individualScores.length;
+                expect(Math.abs(teamAffinity.average - calculatedAverage)).toBeLessThan(0.01);
+              }
+            }
+          }
+        ),
+        { numRuns: 30 }
+      );
+    });
+
+    it('should handle empty team member lists gracefully', async () => {
+      const practiceVersions = await PracticeVersion.findAll();
+      
+      if (practiceVersions.length > 0) {
+        const teamAffinity = await PersonalityService.calculateTeamAffinity(
+          [], // Empty team
+          practiceVersions[0].id
+        );
+
+        expect(teamAffinity.average).toBe(0);
+        expect(teamAffinity.minimum).toBe(0);
+        expect(teamAffinity.maximum).toBe(0);
+        expect(teamAffinity.standardDeviation).toBe(0);
+        expect(teamAffinity.memberCount).toBe(0);
+        expect(teamAffinity.individualScores).toEqual([]);
+      }
+    });
+
+    it('should calculate consistent team affinity for identical member profiles', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            o: fc.float({ min: 0, max: 1 }),
+            c: fc.float({ min: 0, max: 1 }),
+            e: fc.float({ min: 0, max: 1 }),
+            a: fc.float({ min: 0, max: 1 }),
+            n: fc.float({ min: 0, max: 1 })
+          }),
+          async (profileScores) => {
+            // Create identical profiles for all team members
+            for (const memberId of teamMemberIds) {
+              await BfProfile.create({
+                personId: memberId,
+                statusId: 3,
+                ...profileScores
+              });
+            }
+
+            // Wait for affinity calculations
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            const practiceVersions = await PracticeVersion.findAll();
+            
+            if (practiceVersions.length > 0) {
+              const teamAffinity = await PersonalityService.calculateTeamAffinity(
+                teamMemberIds, 
+                practiceVersions[0].id
+              );
+
+              if (teamAffinity.individualScores.length > 0) {
+                // For identical profiles, all individual scores should be the same
+                const firstScore = teamAffinity.individualScores[0];
+                teamAffinity.individualScores.forEach(score => {
+                  expect(score).toBe(firstScore);
+                });
+
+                // Average, min, and max should all equal the individual score
+                expect(teamAffinity.average).toBe(firstScore);
+                expect(teamAffinity.minimum).toBe(firstScore);
+                expect(teamAffinity.maximum).toBe(firstScore);
+                
+                // Standard deviation should be 0 for identical scores
+                expect(teamAffinity.standardDeviation).toBe(0);
+              }
+            }
+          }
+        ),
+        { numRuns: 20 }
+      );
+    });
+
+    it('should provide team practice recommendations based on affinity thresholds', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.tuple(
+            fc.array(
+              fc.record({
+                o: fc.float({ min: 0, max: 1 }),
+                c: fc.float({ min: 0, max: 1 }),
+                e: fc.float({ min: 0, max: 1 }),
+                a: fc.float({ min: 0, max: 1 }),
+                n: fc.float({ min: 0, max: 1 })
+              }),
+              { minLength: teamMemberIds.length, maxLength: teamMemberIds.length }
+            ),
+            fc.integer({ min: 30, max: 90 }) // Affinity threshold
+          ),
+          async ([memberProfiles, threshold]) => {
+            // Create profiles for team members
+            for (let i = 0; i < teamMemberIds.length; i++) {
+              await BfProfile.create({
+                personId: teamMemberIds[i],
+                statusId: 3,
+                ...memberProfiles[i]
+              });
+            }
+
+            // Wait for affinity calculations
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            // Get recommendations
+            const recommendations = await PersonalityService.getTeamPracticeRecommendations(
+              teamMemberIds, 
+              threshold
+            );
+
+            // Verify recommendation structure
+            expect(Array.isArray(recommendations)).toBe(true);
+            
+            recommendations.forEach(rec => {
+              expect(rec).toHaveProperty('practice');
+              expect(rec).toHaveProperty('teamAffinity');
+              expect(rec).toHaveProperty('recommended');
+              expect(rec).toHaveProperty('reason');
+              
+              // Team affinity should have proper structure
+              expect(rec.teamAffinity).toHaveProperty('average');
+              expect(rec.teamAffinity).toHaveProperty('minimum');
+              expect(rec.teamAffinity).toHaveProperty('maximum');
+              
+              // Recommended practices should meet threshold
+              if (rec.recommended) {
+                expect(rec.teamAffinity.average).toBeGreaterThanOrEqual(threshold);
+              }
+              
+              // Non-recommended practices should have valid reasons
+              if (!rec.recommended) {
+                expect(typeof rec.reason).toBe('string');
+                expect(rec.reason.length).toBeGreaterThan(0);
+              }
+            });
+
+            // Recommendations should be sorted by team affinity (descending)
+            for (let i = 1; i < recommendations.length; i++) {
+              expect(recommendations[i - 1].teamAffinity.average)
+                .toBeGreaterThanOrEqual(recommendations[i].teamAffinity.average);
+            }
+          }
+        ),
+        { numRuns: 20 }
       );
     });
   });
