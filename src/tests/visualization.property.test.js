@@ -1,16 +1,14 @@
 const fc = require('fast-check');
-const visualizationService = require('../services/visualizationService');
-const { Pool } = require('pg');
 
-// Mock the database pool for testing
-jest.mock('pg', () => ({
-  Pool: jest.fn(() => ({
-    connect: jest.fn(() => ({
-      query: jest.fn(),
-      release: jest.fn()
-    }))
+// Mock the database configuration before requiring the service
+jest.mock('../config/database', () => ({
+  connect: jest.fn(() => ({
+    query: jest.fn(),
+    release: jest.fn()
   }))
 }));
+
+const visualizationService = require('../services/visualizationService');
 
 describe('Visualization Service Property Tests', () => {
   let mockClient;
@@ -26,18 +24,21 @@ describe('Visualization Service Property Tests', () => {
       connect: jest.fn().mockResolvedValue(mockClient)
     };
     
-    // Reset the Pool mock and replace the pool instance in the service
-    Pool.mockImplementation(() => mockPool);
-    
-    // Mock the pool instance used by the service
-    const visualizationServiceModule = require('../services/visualizationService');
-    if (visualizationServiceModule.pool) {
-      visualizationServiceModule.pool = mockPool;
-    }
+    // Mock the database pool
+    const pool = require('../config/database');
+    pool.connect = mockPool.connect;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    // Close database connections to prevent Jest warnings
+    const pool = require('../config/database');
+    if (pool && pool.end) {
+      await pool.end();
+    }
   });
 
   /**

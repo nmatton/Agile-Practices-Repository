@@ -1,5 +1,4 @@
-const { Pool } = require('pg');
-const pool = new Pool();
+const pool = require('../config/database');
 
 class VisualizationService {
   /**
@@ -14,13 +13,13 @@ class VisualizationService {
       const practiceQuery = `
         SELECT 
           pv.id as practice_version_id,
-          pv.version_name,
-          pv.change_description,
+          pv.versionname as version_name,
+          pv.changedescription as change_description,
           p.name as practice_name,
           p.description as practice_description,
           p.objective as practice_objective
-        FROM practice_version pv
-        JOIN practice p ON pv.practice_id = p.id
+        FROM practiceversion pv
+        JOIN practice p ON pv.practiceid = p.id
         WHERE pv.id = $1
       `;
       
@@ -39,8 +38,8 @@ class VisualizationService {
           a.description,
           pva.sequence
         FROM activity a
-        JOIN practice_version_activity pva ON a.id = pva.activity_id
-        WHERE pva.practice_version_id = $1
+        JOIN practiceversionactivity pva ON a.id = pva.activityid
+        WHERE pva.practiceversionid = $1
         ORDER BY pva.sequence
       `;
       
@@ -52,10 +51,10 @@ class VisualizationService {
           r.id,
           r.name,
           r.description,
-          ru.type_id
+          ru.typeid as type_id
         FROM role r
-        JOIN role_use ru ON r.id = ru.role_id
-        WHERE ru.practice_version_id = $1
+        JOIN roleuse ru ON r.id = ru.roleid
+        WHERE ru.practiceversionid = $1
       `;
       
       const rolesResult = await client.query(rolesQuery, [practiceVersionId]);
@@ -67,9 +66,9 @@ class VisualizationService {
           g.name,
           g.description
         FROM goal g
-        JOIN recommendation_goal rg ON g.id = rg.goal_id
-        JOIN recommendation rec ON rg.recommendation_id = rec.id
-        WHERE rec.practice_version_id = $1
+        JOIN recommendationgoal rg ON g.id = rg.goalid
+        JOIN recommendation rec ON rg.recommendationid = rec.id
+        WHERE rec.practiceversionid = $1
       `;
       
       const goalsResult = await client.query(goalsQuery, [practiceVersionId]);
@@ -126,9 +125,9 @@ class VisualizationService {
       // Get all active practice versions in the universe
       const practicesQuery = `
         SELECT DISTINCT pv.id
-        FROM practice_version pv
-        JOIN practice_version_universe pvu ON pv.id = pvu.practice_version_id
-        WHERE pvu.universe_id = $1 AND pvu.is_active = true
+        FROM practiceversion pv
+        JOIN practiceversionuniverse pvu ON pv.id = pvu.practiceversionid
+        WHERE pvu.universeid = $1 AND pvu.isactive = true
       `;
       
       const practicesResult = await client.query(practicesQuery, [universeId]);
@@ -269,4 +268,7 @@ class VisualizationService {
   }
 }
 
-module.exports = new VisualizationService();
+const visualizationServiceInstance = new VisualizationService();
+visualizationServiceInstance.pool = pool;
+
+module.exports = visualizationServiceInstance;
