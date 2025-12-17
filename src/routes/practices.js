@@ -3,6 +3,7 @@ const router = express.Router();
 const Practice = require('../models/Practice');
 const PracticeVersion = require('../models/PracticeVersion');
 const Activity = require('../models/Activity');
+const Goal = require('../models/Goal');
 const { requireAuth } = require('../middleware/auth');
 
 // GET /api/practices - List all practices with search and filtering
@@ -13,9 +14,13 @@ router.get('/', async (req, res) => {
       goalId, 
       search, 
       category,
-      limit = 50, 
-      offset = 0 
+      limit = 20, 
+      offset = 0,
+      page = 1
     } = req.query;
+    
+    // Calculate offset from page if provided
+    const actualOffset = page ? (parseInt(page) - 1) * parseInt(limit) : parseInt(offset);
     
     const practices = await Practice.findAllWithFilters({ 
       typeId: typeId ? parseInt(typeId) : undefined,
@@ -23,16 +28,25 @@ router.get('/', async (req, res) => {
       search: search || undefined,
       category: category || undefined,
       limit: parseInt(limit), 
-      offset: parseInt(offset) 
+      offset: actualOffset 
+    });
+    
+    // Get total count for proper pagination
+    const totalCount = await Practice.countWithFilters({
+      typeId: typeId ? parseInt(typeId) : undefined,
+      goalId: goalId ? parseInt(goalId) : undefined,
+      search: search || undefined,
+      category: category || undefined,
     });
     
     res.json({
       success: true,
-      data: practices,
+      practices: practices,
       pagination: {
+        page: parseInt(page),
         limit: parseInt(limit),
-        offset: parseInt(offset),
-        total: practices.length
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / parseInt(limit))
       }
     });
   } catch (error) {
@@ -76,6 +90,22 @@ router.get('/search', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to search practices',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/practices/goals - Get all goals for filtering
+router.get('/goals', async (req, res) => {
+  try {
+    const goals = await Goal.findAll();
+    
+    res.json(goals);
+  } catch (error) {
+    console.error('Error fetching goals:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch goals',
       error: error.message
     });
   }

@@ -1,6 +1,7 @@
 const express = require('express');
 const Person = require('../models/Person');
 const { requireAuth, requireExpert, requireTeamMember } = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -18,6 +19,17 @@ router.post('/register', async (req, res) => {
 
     // Create new user
     const person = await Person.create({ name, email, password });
+
+    // Send welcome email (non-blocking)
+    try {
+      await emailService.sendWelcomeEmail({
+        recipientEmail: email,
+        userName: name
+      });
+    } catch (error) {
+      console.error('Failed to send welcome email:', error);
+      // Don't fail registration if email fails
+    }
 
     res.status(201).json({
       message: 'Registration successful',

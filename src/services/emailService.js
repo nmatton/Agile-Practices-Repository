@@ -7,20 +7,29 @@ class EmailService {
   }
 
   initializeTransporter() {
-    // For development, use ethereal email (fake SMTP service)
-    // In production, this would be configured with real SMTP settings
-    if (process.env.NODE_ENV === 'production') {
-      this.transporter = nodemailer.createTransporter({
+    // Check if SMTP configuration is available
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+      console.log('Initializing SMTP transporter with:', {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT || 587,
-        secure: false,
+        user: process.env.SMTP_USER
+      });
+      
+      this.transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT) || 587,
+        secure: false, // true for 465, false for other ports
         auth: {
           user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+          pass: process.env.SMTP_PASSWORD
+        },
+        tls: {
+          rejectUnauthorized: false // Allow self-signed certificates
         }
       });
     } else {
-      // For development/testing, use a mock transporter
+      // For development/testing without SMTP config, use a mock transporter
+      console.log('No SMTP configuration found, using mock email service');
       this.transporter = {
         sendMail: async (mailOptions) => {
           console.log('Mock email sent:', {
@@ -104,7 +113,7 @@ You can now:
 - Take personality assessments for personalized recommendations
 - Customize practices for your team context
 
-Get started by logging in at: ${process.env.APP_URL || 'http://localhost:3000'}/login
+Get started by logging in at: ${process.env.FRONTEND_URL || 'http://localhost:3001'}/login
 
 Best regards,
 The APR Team
@@ -123,13 +132,13 @@ The APR Team
         <li>Customize practices for your team context</li>
       </ul>
       
-      <p><a href="${process.env.APP_URL || 'http://localhost:3000'}/login">Get started by logging in</a></p>
+      <p><a href="${process.env.FRONTEND_URL || 'http://localhost:3001'}/login">Get started by logging in</a></p>
       
       <p>Best regards,<br>The APR Team</p>
     `;
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || 'noreply@apr.com',
+      from: process.env.SMTP_USER || 'noreply@apr.com',
       to: recipientEmail,
       subject: subject,
       text: text,

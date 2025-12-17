@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { registerUser, clearError } from '../../store/slices/authSlice';
+import { registerUser, clearError, clearRegistrationSuccess } from '../../store/slices/authSlice';
+import { addToast } from '../../store/slices/toastSlice';
 import './Auth.css';
 
 const Register = () => {
@@ -12,16 +13,51 @@ const Register = () => {
     confirmPassword: '',
   });
   const [validationErrors, setValidationErrors] = useState({});
+  const toastShownRef = useRef(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading, error, registrationSuccess } = useSelector((state) => state.auth);
 
   useEffect(() => {
     return () => {
       dispatch(clearError());
     };
   }, [dispatch]);
+
+  // Handle successful registration
+  useEffect(() => {
+    if (registrationSuccess && !toastShownRef.current) {
+      toastShownRef.current = true;
+      
+      // Clear form
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
+      setValidationErrors({});
+      
+      // Show toast notification
+      dispatch(addToast({
+        message: 'Account created successfully! You can now login.',
+        type: 'success',
+        duration: 5000
+      }));
+      
+      // Navigate to login after showing toast
+      const timer = setTimeout(() => {
+        dispatch(clearRegistrationSuccess());
+        toastShownRef.current = false;
+        navigate('/login');
+      }, 2500);
+      
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [registrationSuccess, navigate, dispatch]);
 
   const handleChange = (e) => {
     setFormData({
@@ -72,17 +108,12 @@ const Register = () => {
       return;
     }
 
-    const result = await dispatch(registerUser({
+    await dispatch(registerUser({
       name: formData.name,
       email: formData.email,
       password: formData.password,
+      confirmPassword: formData.confirmPassword,
     }));
-
-    if (registerUser.fulfilled.match(result)) {
-      navigate('/login', {
-        state: { message: 'Registration successful! Please log in.' }
-      });
-    }
   };
 
   return (
@@ -92,6 +123,8 @@ const Register = () => {
           <h2>Join APR</h2>
           <p>Create your account to access personalized agile practice recommendations</p>
         </div>
+
+
 
         {error && (
           <div className="alert alert-error">

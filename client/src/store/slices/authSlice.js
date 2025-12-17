@@ -18,7 +18,7 @@ export const loginUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Login failed'
+        error.response?.data?.error || 'Login failed'
       );
     }
   }
@@ -26,17 +26,18 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
-  async ({ name, email, password }, { rejectWithValue }) => {
+  async ({ name, email, password, confirmPassword }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/auth/register`, {
         name,
         email,
         password,
+        confirmPassword,
       });
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Registration failed'
+        error.response?.data?.error || 'Registration failed'
       );
     }
   }
@@ -50,7 +51,7 @@ export const logoutUser = createAsyncThunk(
       return {};
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Logout failed'
+        error.response?.data?.error || 'Logout failed'
       );
     }
   }
@@ -75,6 +76,7 @@ const authSlice = createSlice({
     isAuthenticated: false,
     loading: false,
     error: null,
+    registrationSuccess: false,
   },
   reducers: {
     clearError: (state) => {
@@ -84,6 +86,10 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.registrationSuccess = false;
+    },
+    clearRegistrationSuccess: (state) => {
+      state.registrationSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -108,14 +114,17 @@ const authSlice = createSlice({
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.registrationSuccess = false;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
+        state.registrationSuccess = true;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.registrationSuccess = false;
       })
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {
@@ -135,5 +144,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, clearAuth } = authSlice.actions;
+export const { clearError, clearAuth, clearRegistrationSuccess } = authSlice.actions;
 export default authSlice.reducer;

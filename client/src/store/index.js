@@ -3,6 +3,7 @@ import authSlice from './slices/authSlice';
 import practicesSlice from './slices/practicesSlice';
 import teamsSlice from './slices/teamsSlice';
 import dashboardSlice from './slices/dashboardSlice';
+import toastSlice from './slices/toastSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     practices: practicesSlice,
     teams: teamsSlice,
     dashboard: dashboardSlice,
+    toast: toastSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

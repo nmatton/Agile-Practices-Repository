@@ -15,6 +15,7 @@ import TeamList from './components/Teams/TeamList';
 import TeamDetail from './components/Teams/TeamDetail';
 import Dashboard from './components/Dashboard/Dashboard';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import ToastContainer from './components/Toast/ToastContainer';
 
 import './App.css';
 
@@ -38,6 +39,7 @@ function AppContent() {
     <Router>
       <div className="App">
         <Navbar />
+        <ToastContainer />
         <main className="main-content">
           <Routes>
             {/* Public routes */}
