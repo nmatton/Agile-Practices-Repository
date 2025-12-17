@@ -284,7 +284,9 @@ class Practice {
       workproducts: [],
       metrics: [],
       recommendations: [],
-      goals: []
+      goals: [],
+      feedback: [],
+      feedbackStats: null
     };
 
     if (versions.length > 0) {
@@ -395,6 +397,41 @@ class Practice {
         }
       });
       associatedData.goals = Array.from(goalSet).map(goalStr => JSON.parse(goalStr));
+
+      // Get validated feedback for this practice version
+      const feedbackResult = await pool.query(
+        `SELECT ef.*, 
+                p.name as authorName
+         FROM ExperienceFeedback ef
+         JOIN Person p ON ef.personId = p.id
+         WHERE ef.practiceVersionId = $1 AND ef.isValidated = true
+         ORDER BY ef.createdAt DESC
+         LIMIT 10`,
+        [latestVersionId]
+      );
+      associatedData.feedback = feedbackResult.rows;
+
+      // Get feedback statistics
+      const feedbackStatsResult = await pool.query(
+        `SELECT 
+           COUNT(*) as totalFeedback,
+           COUNT(*) FILTER (WHERE isValidated = true) as validatedFeedback,
+           AVG(rating) FILTER (WHERE isValidated = true AND rating IS NOT NULL) as averageRating,
+           COUNT(*) FILTER (WHERE rating IS NOT NULL AND isValidated = true) as ratedFeedback
+         FROM ExperienceFeedback 
+         WHERE practiceVersionId = $1`,
+        [latestVersionId]
+      );
+      
+      if (feedbackStatsResult.rows.length > 0) {
+        const stats = feedbackStatsResult.rows[0];
+        associatedData.feedbackStats = {
+          totalFeedback: parseInt(stats.totalfeedback),
+          validatedFeedback: parseInt(stats.validatedfeedback),
+          averageRating: stats.averagerating ? parseFloat(stats.averagerating) : null,
+          ratedFeedback: parseInt(stats.ratedfeedback)
+        };
+      }
     }
 
     return {
