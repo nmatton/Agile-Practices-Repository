@@ -7,110 +7,105 @@ const PracticeVersion = require('../models/PracticeVersion');
 const Goal = require('../models/Goal');
 const PersonPracticeAffinity = require('../models/PersonPracticeAffinity');
 const { requireAuth } = require('../middleware/auth');
+const cacheService = require('../services/cacheService');
+const QueryOptimizationService = require('../services/queryOptimizationService');
 
-// GET /api/dashboard/teams/:teamId - Get team dashboard with active practices and OAR coverage
+// GET /api/dashboard/teams/:teamId - Get team dashboard with active practices and OAR coverage (optimized)
 router.get('/teams/:teamId', requireAuth, async (req, res) => {
   try {
     const { teamId } = req.params;
+    const teamIdInt = parseInt(teamId);
 
-    // Verify team exists and user is a member
-    const team = await Team.findById(teamId);
-    if (!team) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Team not found' 
-      });
-    }
-
-    const isMember = await team.isMember(req.user.id);
-    if (!isMember) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied - not a team member' 
-      });
-    }
-
-    // Get team universes
-    const universes = await Universe.findByTeamId(teamId);
+    // Check cache first
+    let dashboardData = await cacheService.getCachedTeamDashboard(teamIdInt);
     
-    // Get active practices for all team universes
-    let activePractices = [];
-    let oarCoverage = new Map();
-    let practiceAffinities = [];
-
-    for (const universe of universes) {
-      const universePractices = await universe.getActivePractices();
-      
-      for (const practice of universePractices) {
-        // Get complete practice details including goals
-        const practiceObj = await Practice.findById(practice.practiceid);
-        if (practiceObj) {
-          const completeDetails = await practiceObj.getCompleteDetails();
-          
-          // Calculate team affinity for this practice
-          const teamAffinity = await calculateTeamAffinity(teamId, practice.id);
-          
-          const practiceWithAffinity = {
-            ...practice,
-            ...completeDetails,
-            universeId: universe.id,
-            universeName: universe.name,
-            teamAffinity: teamAffinity.averageAffinity,
-            lowAffinityMembers: teamAffinity.lowAffinityMembers,
-            hasLowAffinity: teamAffinity.hasLowAffinity
-          };
-          
-          activePractices.push(practiceWithAffinity);
-          practiceAffinities.push(practiceWithAffinity);
-
-          // Track OAR coverage
-          if (completeDetails.goals && completeDetails.goals.length > 0) {
-            completeDetails.goals.forEach(goal => {
-              if (!oarCoverage.has(goal.id)) {
-                oarCoverage.set(goal.id, {
-                  goal: goal,
-                  practices: []
-                });
-              }
-              oarCoverage.get(goal.id).practices.push({
-                id: practice.id,
-                name: practice.practicename,
-                affinity: teamAffinity.averageAffinity
-              });
-            });
-          }
-        }
+    if (!dashboardData) {
+      // Verify team exists and user is a member
+      const team = await Team.findById(teamIdInt);
+      if (!team) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Team not found' 
+        });
       }
+
+      const isMember = await team.isMember(req.user.id);
+      if (!isMember) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Access denied - not a team member' 
+        });
+      }
+
+      // Use optimized single-query dashboard fetch
+      dashboardData = await QueryOptimizationService.getTeamDashboardOptimized(teamIdInt);
+      
+      if (!dashboardData) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Team dashboard data not found' 
+        });
+      }
+
+      // Process OAR coverage
+      const activePractices = dashboardData.activepractices || [];
+      const oarCoverage = new Map();
+      
+      activePractices.forEach(practice => {
+        if (practice.goals && practice.goals.length > 0) {
+          practice.goals.forEach(goal => {
+            if (!oarCoverage.has(goal.id)) {
+              oarCoverage.set(goal.id, {
+                goal: goal,
+                practices: []
+              });
+            }
+            oarCoverage.get(goal.id).practices.push({
+              id: practice.practiceVersionId,
+              name: practice.practiceName,
+              affinity: practice.teamAffinity
+            });
+          });
+        }
+      });
+
+      // Get all available goals for coverage analysis
+      const allGoals = await Goal.findAll();
+      const uncoveredGoals = allGoals.filter(goal => !oarCoverage.has(goal.id));
+      
+      // Format response data
+      const responseData = {
+        team: {
+          id: dashboardData.id,
+          name: dashboardData.name,
+          description: dashboardData.description
+        },
+        universes: dashboardData.universes || [],
+        activePractices: activePractices,
+        oarCoverage: {
+          covered: Array.from(oarCoverage.values()),
+          uncovered: uncoveredGoals.map(g => g.toJSON()),
+          coveragePercentage: allGoals.length > 0 
+            ? Math.round((oarCoverage.size / allGoals.length) * 100) 
+            : 0
+        },
+        teamAffinityStats: {
+          averageAffinity: activePractices.length > 0 
+            ? Math.round(activePractices.reduce((sum, p) => sum + (p.teamAffinity || 0), 0) / activePractices.length)
+            : 0,
+          lowAffinityPractices: activePractices.filter(p => p.hasLowAffinity).length,
+          totalPractices: activePractices.length
+        }
+      };
+
+      // Cache the processed data
+      await cacheService.cacheTeamDashboard(teamIdInt, responseData);
+      dashboardData = responseData;
     }
-
-    // Convert OAR coverage map to array
-    const oarCoverageArray = Array.from(oarCoverage.values());
-
-    // Get all available goals for coverage analysis
-    const allGoals = await Goal.findAll();
-    const uncoveredGoals = allGoals.filter(goal => 
-      !oarCoverage.has(goal.id)
-    );
 
     res.json({
       success: true,
-      data: {
-        team: team.toJSON(),
-        universes: universes.map(u => u.toJSON()),
-        activePractices,
-        oarCoverage: {
-          covered: oarCoverageArray,
-          uncovered: uncoveredGoals.map(g => g.toJSON()),
-          coveragePercentage: Math.round((oarCoverageArray.length / allGoals.length) * 100)
-        },
-        teamAffinityStats: {
-          averageAffinity: practiceAffinities.length > 0 
-            ? Math.round(practiceAffinities.reduce((sum, p) => sum + p.teamAffinity, 0) / practiceAffinities.length)
-            : 0,
-          lowAffinityPractices: practiceAffinities.filter(p => p.hasLowAffinity).length,
-          totalPractices: practiceAffinities.length
-        }
-      }
+      data: dashboardData
     });
 
   } catch (error) {

@@ -5,50 +5,44 @@ const PracticeVersion = require('../models/PracticeVersion');
 const Activity = require('../models/Activity');
 const Goal = require('../models/Goal');
 const { requireAuth } = require('../middleware/auth');
+const { parsePaginationParams, addPaginationHelpers } = require('../middleware/pagination');
+const cacheService = require('../services/cacheService');
+const QueryOptimizationService = require('../services/queryOptimizationService');
 
-// GET /api/practices - List all practices with search and filtering
-router.get('/', async (req, res) => {
+// GET /api/practices - List all practices with search and filtering (optimized with caching)
+router.get('/', parsePaginationParams, addPaginationHelpers, async (req, res) => {
   try {
-    const { 
-      typeId, 
-      goalId, 
+    const { typeId, goalId, search, category } = req.query;
+    const { page, limit, offset } = req.pagination;
+    
+    // Check cache first
+    const cacheKey = cacheService.generateKey('practices', 'list', JSON.stringify({
+      typeId, goalId, search, category, page, limit
+    }));
+    
+    let cachedResult = await cacheService.get(cacheKey);
+    if (cachedResult) {
+      return res.paginate(cachedResult.practices, cachedResult.totalCount);
+    }
+    
+    // Use optimized query
+    const filters = {
+      typeId: typeId ? parseInt(typeId) : undefined,
+      goalId: goalId ? parseInt(goalId) : undefined,
+      search: search || undefined,
+      category: category || undefined
+    };
+    
+    const result = await QueryOptimizationService.searchPracticesOptimized(
       search, 
-      category,
-      limit = 20, 
-      offset = 0,
-      page = 1
-    } = req.query;
+      filters, 
+      { limit, offset }
+    );
     
-    // Calculate offset from page if provided
-    const actualOffset = page ? (parseInt(page) - 1) * parseInt(limit) : parseInt(offset);
+    // Cache the result for 10 minutes
+    await cacheService.set(cacheKey, result, 600);
     
-    const practices = await Practice.findAllWithFilters({ 
-      typeId: typeId ? parseInt(typeId) : undefined,
-      goalId: goalId ? parseInt(goalId) : undefined,
-      search: search || undefined,
-      category: category || undefined,
-      limit: parseInt(limit), 
-      offset: actualOffset 
-    });
-    
-    // Get total count for proper pagination
-    const totalCount = await Practice.countWithFilters({
-      typeId: typeId ? parseInt(typeId) : undefined,
-      goalId: goalId ? parseInt(goalId) : undefined,
-      search: search || undefined,
-      category: category || undefined,
-    });
-    
-    res.json({
-      success: true,
-      practices: practices,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalItems: totalCount,
-        totalPages: Math.ceil(totalCount / parseInt(limit))
-      }
-    });
+    res.paginate(result.practices, result.totalCount);
   } catch (error) {
     console.error('Error fetching practices:', error);
     res.status(500).json({
@@ -130,20 +124,28 @@ router.get('/categories', async (req, res) => {
   }
 });
 
-// GET /api/practices/:id - Get practice by ID with complete details
+// GET /api/practices/:id - Get practice by ID with complete details (optimized with caching)
 router.get('/:id', async (req, res) => {
   try {
-    const practice = await Practice.findById(req.params.id);
+    const practiceId = parseInt(req.params.id);
     
-    if (!practice) {
-      return res.status(404).json({
-        success: false,
-        message: 'Practice not found'
-      });
+    // Check cache first
+    let practiceDetails = await cacheService.getCachedPracticeDetails(practiceId);
+    
+    if (!practiceDetails) {
+      // Use optimized query to get all details in single request
+      practiceDetails = await QueryOptimizationService.getPracticeDetailsOptimized(practiceId);
+      
+      if (!practiceDetails) {
+        return res.status(404).json({
+          success: false,
+          message: 'Practice not found'
+        });
+      }
+      
+      // Cache the result
+      await cacheService.cachePracticeDetails(practiceId, practiceDetails);
     }
-
-    // Get complete practice details including all associated information
-    const practiceDetails = await practice.getCompleteDetails();
     
     res.json({
       success: true,

@@ -79,6 +79,7 @@ const recommendationRoutes = require('./routes/recommendations');
 const feedbackRoutes = require('./routes/feedback');
 const expertRoutes = require('./routes/expert');
 const visualizationRoutes = require('./routes/visualization');
+const performanceRoutes = require('./routes/performance');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
@@ -91,6 +92,7 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/expert', expertRoutes);
 app.use('/api/visualization', visualizationRoutes);
+app.use('/api/performance', performanceRoutes);
 
 // API info endpoint
 app.get('/api', (req, res) => {
@@ -109,7 +111,8 @@ app.get('/api', (req, res) => {
       recommendations: '/api/recommendations',
       feedback: '/api/feedback',
       expert: '/api/expert',
-      visualization: '/api/visualization'
+      visualization: '/api/visualization',
+      performance: '/api/performance'
     }
   });
 });
