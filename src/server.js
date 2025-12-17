@@ -69,6 +69,7 @@ const affinityRoutes = require('./routes/affinity');
 const dashboardRoutes = require('./routes/dashboard');
 const recommendationRoutes = require('./routes/recommendations');
 const feedbackRoutes = require('./routes/feedback');
+const expertRoutes = require('./routes/expert');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
@@ -79,6 +80,7 @@ app.use('/api/affinity', affinityRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/expert', expertRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -95,6 +97,7 @@ app.get('/', (req, res) => {
       dashboard: '/api/dashboard',
       recommendations: '/api/recommendations',
       feedback: '/api/feedback',
+      expert: '/api/expert',
       api: '/api'
     }
   });
