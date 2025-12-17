@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APR Practice Visualization Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .practice-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: inline-block;
+            vertical-align: top;
+            width: 280px;
+            min-height: 360px;
+        }
+        
+        .practice-card h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        
+        .practice-description {
+            color: #555;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .practice-objective {
+            background: #e8f4fd;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        .activities-section, .roles-section, .goals-section {
+            margin-bottom: 12px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .activity-item, .role-item, .goal-item {
+            background: #f8f9fa;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .controls input, .controls button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .controls button {
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background: #2980b9;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background: #fdf2f2;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            color: #27ae60;
+            background: #f2fdf2;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .canvas-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 400px;
+        }
+        
+        @media print {
+            .controls {
+                display: none;
+            }
+            
+            .practice-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                width: 180mm;
+                height: 120mm;
+                margin: 5mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>APR Practice Visualization Demo</h1>
+        
+        <div class="controls">
+            <h3>Test Visualization API</h3>
+            <div>
+                <label>Practice Version ID:</label>
+                <input type="number" id="practiceId" value="1" min="1">
+                <button onclick="loadPracticeCard()">Load Practice Card</button>
+            </div>
+            <div>
+                <label>Universe ID:</label>
+                <input type="number" id="universeId" value="1" min="1">
+                <button onclick="loadUniverseCards()">Load Universe Cards</button>
+            </div>
+            <div>
+                <button onclick="generatePrintLayout()">Generate Print Layout</button>
+                <button onclick="window.print()">Print Cards</button>
+            </div>
+        </div>
+        
+        <div id="messages"></div>
+        
+        <div class="canvas-container" id="canvasContainer">
+            <p>Load practice cards using the controls above.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/visualization';
+        
+        function showMessage(message, type = 'success') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messagesDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+        
+        async function loadPracticeCard() {
+            const practiceId = document.getElementById('practiceId').value;
+            
+            if (!practiceId) {
+                showError('Please enter a practice version ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/practice/${practiceId}/card`);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to load practice card');
+                }
+                
+                renderPracticeCard(result.data);
+                showMessage('Practice card loaded successfully');
+            } catch (error) {
+                showError(`Error loading practice card: ${error.message}`);
+            }
+        }
+        
+        async function loadUniverseCards() {
+            const universeId = document.getElementById('universeId').value;
+            
+            if (!universeId) {
+                showError('Please enter a universe ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/universe/${universeId}/cards`);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to load universe cards');
+                }
+                
+                renderUniverseCards(result.data.cards);
+                showMessage(`Loaded ${result.data.totalCards} cards from universe`);
+            } catch (error) {
+                showError(`Error loading universe cards: ${error.message}`);
+            }
+        }
+        
+        function renderPracticeCard(cardData) {
+            const container = document.getElementById('canvasContainer');
+            container.innerHTML = '';
+            
+            const cardElement = createCardElement(cardData);
+            container.appendChild(cardElement);
+        }
+        
+        function renderUniverseCards(cards) {
+            const container = document.getElementById('canvasContainer');
+            container.innerHTML = '';
+            
+            cards.forEach(cardData => {
+                const cardElement = createCardElement(cardData);
+                container.appendChild(cardElement);
+            });
+        }
+        
+        function createCardElement(cardData) {
+            const card = document.createElement('div');
+            card.className = 'practice-card';
+            
+            card.innerHTML = `
+                <h3>${cardData.name}</h3>
+                <div class="practice-description">${cardData.description || 'No description available'}</div>
+                ${cardData.objective ? `<div class="practice-objective"><strong>Objective:</strong> ${cardData.objective}</div>` : ''}
+                
+                ${cardData.activities && cardData.activities.length > 0 ? `
+                    <div class="activities-section">
+                        <div class="section-title">Activities</div>
+                        ${cardData.activities.map(activity => 
+                            `<div class="activity-item">${activity.sequence}. ${activity.name}</div>`
+                        ).join('')}
+                    </div>
+                ` : ''}
+                
+                ${cardData.roles && cardData.roles.length > 0 ? `
+                    <div class="roles-section">
+                        <div class="section-title">Roles</div>
+                        ${cardData.roles.map(role => 
+                            `<div class="role-item">${role.name}</div>`
+                        ).join('')}
+                    </div>
+                ` : ''}
+                
+                ${cardData.goals && cardData.goals.length > 0 ? `
+                    <div class="goals-section">
+                        <div class="section-title">Objectives (OARs)</div>
+                        ${cardData.goals.map(goal => 
+                            `<div class="goal-item">${goal.name}</div>`
+                        ).join('')}
+                    </div>
+                ` : ''}
+            `;
+            
+            return card;
+        }
+        
+        async function generatePrintLayout() {
+            const practiceId = document.getElementById('practiceId').value;
+            
+            if (!practiceId) {
+                showError('Please enter a practice version ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/practice/${practiceId}/print`);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to generate print layout');
+                }
+                
+                console.log('Print layout:', result.data);
+                showMessage('Print layout generated successfully (check console for details)');
+            } catch (error) {
+                showError(`Error generating print layout: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

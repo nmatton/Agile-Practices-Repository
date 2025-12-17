@@ -22,6 +22,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files
+app.use(express.static('public'));
+
 // Session configuration
 app.use(session({
   store: new RedisStore({ client: redisClient }),
@@ -70,6 +73,7 @@ const dashboardRoutes = require('./routes/dashboard');
 const recommendationRoutes = require('./routes/recommendations');
 const feedbackRoutes = require('./routes/feedback');
 const expertRoutes = require('./routes/expert');
+const visualizationRoutes = require('./routes/visualization');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
@@ -81,6 +85,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/expert', expertRoutes);
+app.use('/api/visualization', visualizationRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -98,6 +103,7 @@ app.get('/', (req, res) => {
       recommendations: '/api/recommendations',
       feedback: '/api/feedback',
       expert: '/api/expert',
+      visualization: '/api/visualization',
       api: '/api'
     }
   });
