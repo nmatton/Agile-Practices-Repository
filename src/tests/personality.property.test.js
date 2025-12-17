@@ -7,6 +7,7 @@ const PersonalityService = require('../services/personalityService');
 const Person = require('../models/Person');
 const Team = require('../models/Team');
 const PracticeVersion = require('../models/PracticeVersion');
+const { cleanupTestData } = require('./testUtils');
 
 /**
  * **Feature: agile-practice-repository, Property 14: Big Five calculation and storage**
@@ -44,11 +45,8 @@ describe('Personality Profiling - Property Tests', () => {
   });
 
   afterAll(async () => {
-    // Final cleanup
-    await pool.query("DELETE FROM personPracticeAffinity WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
-    await pool.query("DELETE FROM affinitySurveyResults WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
-    await pool.query("DELETE FROM bfProfile WHERE personId IN (SELECT id FROM Person WHERE email LIKE '%test_personality_%')");
-    await pool.query("DELETE FROM Person WHERE email LIKE '%test_personality_%'");
+    // Final cleanup using utility
+    await cleanupTestData('%test_personality_%');
   });
 
   describe('Property 14: Big Five calculation and storage', () => {

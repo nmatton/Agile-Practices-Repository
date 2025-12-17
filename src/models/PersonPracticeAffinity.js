@@ -172,12 +172,13 @@ class PersonPracticeAffinity {
           const practice = practiceResult.rows[0];
           
           // Simple characteristic mapping based on practice type and description
+          const description = practice.description || '';
           const characteristics = {
             requiresStructure: practice.typeid === 1, // Development practices need structure
             requiresCollaboration: practice.typeid === 2, // Teamwork practices need collaboration
-            requiresCreativity: practice.description.toLowerCase().includes('innovation') || 
-                              practice.description.toLowerCase().includes('creative'),
-            requiresStability: !practice.description.toLowerCase().includes('change')
+            requiresCreativity: description.toLowerCase().includes('innovation') || 
+                              description.toLowerCase().includes('creative'),
+            requiresStability: !description.toLowerCase().includes('change')
           };
 
           const affinityScore = PersonPracticeAffinity.calculateAffinity(bfProfile, characteristics);

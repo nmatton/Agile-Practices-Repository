@@ -1,7 +1,7 @@
 const pool = require('../config/database');
 
 class BfProfile {
-  constructor(data) {
+  constructor(data = {}) {
     this.id = data.id;
     this.personId = data.personid || data.personId;
     this.statusId = data.statusid || data.statusId;

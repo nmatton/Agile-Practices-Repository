@@ -3,6 +3,7 @@ const request = require('supertest');
 const app = require('../server');
 const Person = require('../models/Person');
 const pool = require('../config/database');
+const { cleanupTestData } = require('./testUtils');
 
 /**
  * **Feature: agile-practice-repository, Property 2: Invalid registration is rejected**
@@ -21,23 +22,11 @@ const pool = require('../config/database');
 
 describe('Authentication Security - Property Tests', () => {
   beforeEach(async () => {
-    // Clean up test data in correct order (respecting foreign key constraints)
-    await pool.query("DELETE FROM practiceDifficultyFlag WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM bfprofile WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM teammember WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM Person WHERE email LIKE '%test_%'");
+    await cleanupTestData('%test_%');
   });
 
   afterAll(async () => {
-    // Clean up test data in correct order (respecting foreign key constraints)
-    await pool.query("DELETE FROM practiceDifficultyFlag WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM bfprofile WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM teammember WHERE personid IN (SELECT id FROM Person WHERE email LIKE '%test_%')");
-    await pool.query("DELETE FROM Person WHERE email LIKE '%test_%'");
+    await cleanupTestData('%test_%');
   });
 
   describe('Property 2: Invalid registration is rejected', () => {
