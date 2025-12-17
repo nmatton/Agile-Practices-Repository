@@ -14,6 +14,9 @@ import PracticeDetail from './components/Practices/PracticeDetail';
 import TeamList from './components/Teams/TeamList';
 import TeamDetail from './components/Teams/TeamDetail';
 import Dashboard from './components/Dashboard/Dashboard';
+import ExpertDashboard from './components/Expert/ExpertDashboard';
+import PracticeEditor from './components/Expert/PracticeEditor';
+import PersonalityQuestionnaire from './components/Personality/PersonalityQuestionnaire';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ToastContainer from './components/Toast/ToastContainer';
 
@@ -79,6 +82,32 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <TeamDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/personality" 
+              element={
+                <ProtectedRoute>
+                  <PersonalityQuestionnaire />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Expert routes */}
+            <Route 
+              path="/expert" 
+              element={
+                <ProtectedRoute>
+                  <ExpertDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/expert/practices/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <PracticeEditor />
                 </ProtectedRoute>
               } 
             />

@@ -4,6 +4,7 @@ import practicesSlice from './slices/practicesSlice';
 import teamsSlice from './slices/teamsSlice';
 import dashboardSlice from './slices/dashboardSlice';
 import toastSlice from './slices/toastSlice';
+import expertSlice from './slices/expertSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     teams: teamsSlice,
     dashboard: dashboardSlice,
     toast: toastSlice,
+    expert: expertSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

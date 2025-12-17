@@ -245,6 +245,83 @@ const PracticeDetail = () => {
                 Team Affinity Score
               </div>
             </div>
+            <div className="affinity-explanation">
+              <p>
+                This score indicates how well this practice aligns with your team's personality 
+                profile and working preferences. Higher scores suggest better adoption success.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* Experience Feedback */}
+        {practice.experienceFeedback && practice.experienceFeedback.length > 0 && (
+          <section className="practice-section">
+            <h2>Community Experience</h2>
+            <div className="feedback-list">
+              {practice.experienceFeedback.map((feedback, index) => (
+                <div key={feedback.id || index} className="feedback-item">
+                  <div className="feedback-header">
+                    <span className="feedback-author">
+                      {feedback.authorName || 'Anonymous'}
+                    </span>
+                    {feedback.projectContext && (
+                      <span className="feedback-context">
+                        Project: {feedback.projectContext}
+                      </span>
+                    )}
+                  </div>
+                  <div className="feedback-content">
+                    {feedback.content}
+                  </div>
+                  {feedback.createdAt && (
+                    <div className="feedback-date">
+                      {new Date(feedback.createdAt).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Metrics */}
+        {practice.metrics && practice.metrics.length > 0 && (
+          <section className="practice-section">
+            <h2>Success Metrics</h2>
+            <div className="metrics-list">
+              {practice.metrics.map((metric, index) => (
+                <div key={metric.id || index} className="metric-item">
+                  <h4>{metric.name}</h4>
+                  <div className="metric-details">
+                    {metric.unit && <span className="metric-unit">Unit: {metric.unit}</span>}
+                    {metric.scale && <span className="metric-scale">Scale: {metric.scale}</span>}
+                  </div>
+                  {metric.formula && (
+                    <div className="metric-formula">
+                      Formula: {metric.formula}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Work Products */}
+        {practice.workProducts && practice.workProducts.length > 0 && (
+          <section className="practice-section">
+            <h2>Work Products</h2>
+            <div className="workproducts-list">
+              {practice.workProducts.map((workProduct, index) => (
+                <div key={workProduct.id || index} className="workproduct-item">
+                  <h4>{workProduct.name}</h4>
+                  {workProduct.description && (
+                    <p>{workProduct.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
           </section>
         )}
       </div>

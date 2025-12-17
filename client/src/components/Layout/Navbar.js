@@ -34,6 +34,11 @@ const Navbar = () => {
               <Link to="/teams" className="navbar-link">
                 Teams
               </Link>
+              {user?.role === 'expert' && (
+                <Link to="/expert" className="navbar-link">
+                  Expert Panel
+                </Link>
+              )}
               <div className="navbar-user">
                 <span className="user-name">Hello, {user?.name}</span>
                 <button onClick={handleLogout} className="btn btn-outline btn-sm">

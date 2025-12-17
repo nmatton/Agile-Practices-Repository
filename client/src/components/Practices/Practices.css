@@ -616,3 +616,156 @@
     align-self: center;
   }
 }
+
+/* Enhanced Practice Detail Styles */
+.affinity-explanation {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.affinity-explanation p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Experience Feedback */
+.feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feedback-item {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.feedback-author {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.feedback-context {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: #e5e7eb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.feedback-content {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.feedback-date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: right;
+}
+
+/* Metrics */
+.metrics-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.metric-item {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.metric-item h4 {
+  margin: 0 0 0.75rem 0;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.metric-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.metric-unit,
+.metric-scale {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.metric-formula {
+  font-size: 0.875rem;
+  color: #374151;
+  font-family: 'Courier New', monospace;
+  background: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Work Products */
+.workproducts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.workproduct-item {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.workproduct-item h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.workproduct-item p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+  .feedback-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .metrics-list,
+  .workproducts-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .feedback-date {
+    text-align: left;
+  }
+}
