@@ -25,6 +25,11 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files
 app.use(express.static('public'));
 
+// Serve React app in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+}
+
 // Session configuration
 app.use(session({
   store: new RedisStore({ client: redisClient }),
@@ -87,7 +92,8 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/expert', expertRoutes);
 app.use('/api/visualization', visualizationRoutes);
 
-app.get('/', (req, res) => {
+// API info endpoint
+app.get('/api', (req, res) => {
   res.json({ 
     message: 'Agile Practice Repository API',
     version: '1.0.0',
@@ -103,11 +109,26 @@ app.get('/', (req, res) => {
       recommendations: '/api/recommendations',
       feedback: '/api/feedback',
       expert: '/api/expert',
-      visualization: '/api/visualization',
-      api: '/api'
+      visualization: '/api/visualization'
     }
   });
 });
+
+// Serve React app for all non-API routes in production
+if (process.env.NODE_ENV === 'production') {
+  const path = require('path');
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.json({ 
+      message: 'Agile Practice Repository API - Development Mode',
+      version: '1.0.0',
+      frontend: 'Run `npm run client` to start the React development server'
+    });
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {

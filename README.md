@@ -34,25 +34,45 @@ The Agile Practice Repository (APR) is an intelligent platform that helps agile 
 
 ## Technology Stack
 
+### Backend
 - **Backend**: Node.js with Express framework
 - **Database**: PostgreSQL with comprehensive schema
 - **Session Storage**: Redis
 - **Authentication**: bcrypt password hashing with session management
 - **Testing**: Jest with fast-check for property-based testing
 
+### Frontend
+- **Framework**: React 18 with functional components and hooks
+- **State Management**: Redux Toolkit for predictable state updates
+- **Routing**: React Router for client-side navigation
+- **HTTP Client**: Axios for API communication
+- **Styling**: Custom CSS3 with responsive design (no external frameworks)
+- **Build Tool**: Create React App with optimized production builds
+
 ## Project Structure
 
 ```
 /
-├── src/
+├── src/                 # Backend source code
 │   ├── config/          # Database and Redis configuration
-│   ├── models/          # Data models (Person, etc.)
-│   ├── routes/          # API routes (auth, etc.)
+│   ├── models/          # Data models (Person, Team, Practice, etc.)
+│   ├── routes/          # API routes (auth, teams, practices, etc.)
+│   ├── services/        # Business logic services
+│   ├── middleware/      # Express middleware (auth, validation)
 │   ├── tests/           # Test files including property-based tests
 │   └── server.js        # Main application server
+├── client/              # React frontend application
+│   ├── public/          # Static assets
+│   ├── src/             # React source code
+│   │   ├── components/  # React components organized by feature
+│   │   ├── store/       # Redux store and slices
+│   │   ├── App.js       # Main App component
+│   │   └── index.js     # React entry point
+│   ├── build/           # Production build output
+│   └── package.json     # Frontend dependencies
 ├── sql/                 # Database schema and sample data
 ├── .env                 # Environment configuration
-└── package.json         # Dependencies and scripts
+└── package.json         # Backend dependencies and scripts
 ```
 
 ## Setup Instructions
@@ -65,38 +85,118 @@ The Agile Practice Repository (APR) is an intelligent platform that helps agile 
 ### Quick Start with Docker
 
 1. Clone the repository
-2. Install dependencies:
+2. Install backend dependencies:
    ```bash
    npm install
    ```
 
-3. Start PostgreSQL and Redis with Docker:
+3. Install frontend dependencies:
+   ```bash
+   npm run client:install
+   ```
+
+4. Start PostgreSQL and Redis with Docker:
    ```bash
    docker compose up -d
    ```
 
-4. The database schema will be automatically loaded from `sql/db_sample.sql`
+5. The database schema will be automatically loaded from `sql/db_sample.sql`
 
-5. Start the development server:
+6. Start the development servers:
+
+   **Backend API Server:**
    ```bash
    npm run dev
    ```
+   The API will be available at `http://localhost:3000`
+
+   **Frontend React Server (in a new terminal):**
+   ```bash
+   npm run client
+   ```
+   The React app will be available at `http://localhost:3001`
+
+### Full-Stack Development Workflow
+
+For the complete development experience with both frontend and backend:
+
+1. **Terminal 1 - Backend API:**
+   ```bash
+   npm run dev
+   ```
+
+2. **Terminal 2 - Frontend React App:**
+   ```bash
+   npm run client
+   ```
+
+3. **Access the Application:**
+   - Frontend: http://localhost:3001 (React development server)
+   - Backend API: http://localhost:3000 (Express server)
+   - The React app will automatically proxy API requests to the backend
+
+### Frontend-Only Development
+
+If you're working primarily on the frontend and have a running backend elsewhere:
+
+1. **Configure API URL:**
+   ```bash
+   # Create or update client/.env
+   echo "REACT_APP_API_URL=http://your-backend-url:3000" > client/.env
+   ```
+
+2. **Start React Development Server:**
+   ```bash
+   npm run client
+   ```
+
+3. **Access Frontend:**
+   - React app: http://localhost:3001
+   - Hot reloading enabled for rapid development
 
 ### Manual Setup (without Docker)
 
 If you prefer to install PostgreSQL and Redis manually:
 
 1. Install PostgreSQL (v12+) and Redis (v6+)
-2. Create database and user:
+2. Install dependencies:
+   ```bash
+   npm install
+   npm run client:install
+   ```
+3. Create database and user:
    ```sql
    CREATE DATABASE agile_practice_repository;
    CREATE USER apr_user WITH PASSWORD 'apr_password';
    GRANT ALL PRIVILEGES ON DATABASE agile_practice_repository TO apr_user;
    ```
-3. Load the schema: `psql -U apr_user -d agile_practice_repository -f sql/db_sample.sql`
-4. Update `.env` with your database credentials
-5. Start Redis server
-6. Run `npm run dev`
+4. Load the schema: `psql -U apr_user -d agile_practice_repository -f sql/db_sample.sql`
+5. Update `.env` with your database credentials
+6. Start Redis server
+7. Start development servers:
+   ```bash
+   # Terminal 1 - Backend
+   npm run dev
+   
+   # Terminal 2 - Frontend
+   npm run client
+   ```
+
+### Production Build & Deployment
+
+To build and run the complete application for production:
+
+1. **Build the React frontend:**
+   ```bash
+   npm run client:build
+   ```
+
+2. **Start the production server:**
+   ```bash
+   NODE_ENV=production npm start
+   ```
+
+The production server will serve both the API and the React app at `http://localhost:3000`.
 
 ### Docker Commands
 
@@ -104,6 +204,22 @@ If you prefer to install PostgreSQL and Redis manually:
 - Stop services: `docker-compose down`
 - View logs: `docker-compose logs -f`
 - Reset data: `docker-compose down -v && docker-compose up -d`
+
+### Available NPM Scripts
+
+**Backend:**
+- `npm start` - Start production server
+- `npm run dev` - Start development server with auto-reload
+- `npm test` - Run test suite
+- `npm run migrate` - Run database migrations
+
+**Frontend:**
+- `npm run client` - Start React development server
+- `npm run client:build` - Build React app for production
+- `npm run client:install` - Install frontend dependencies
+
+**Full-Stack:**
+- `npm run client:install` - Install all dependencies (backend + frontend)
 
 ## Complete User Guide
 
@@ -733,11 +849,43 @@ npm test -- --verbose
 npm test -- --runInBand
 ```
 
+**Frontend Development Issues**
+```bash
+# Frontend server won't start
+cd client
+npm install
+npm start
+
+# API requests failing from frontend
+# Check that backend is running on port 3000
+npm run dev
+
+# CORS errors in browser console
+# Ensure FRONTEND_URL is set correctly in .env
+FRONTEND_URL=http://localhost:3001
+
+# React build fails
+cd client
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
 **Port Conflicts**
 - Default API port: 3000
+- Default Frontend port: 3001
 - Default PostgreSQL port: 5432
 - Default Redis port: 6379
-- Update `docker-compose.yml` if needed
+- Update `docker-compose.yml` or `.env` if needed
+
+**Environment Configuration Issues**
+```bash
+# Backend .env file should include:
+FRONTEND_URL=http://localhost:3001
+
+# Frontend .env file (client/.env) should include:
+REACT_APP_API_URL=http://localhost:3000
+```
 
 ### Performance Considerations
 
