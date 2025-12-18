@@ -134,6 +134,25 @@ class Team {
     return result.rows.map(row => new Team(row));
   }
 
+  async update({ name, description }) {
+    const result = await pool.query(
+      `UPDATE Team SET name = $1, description = $2 
+       WHERE id = $3 
+       RETURNING id, name, description`,
+      [name, description || null, this.id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('Team not found');
+    }
+
+    // Update current instance
+    this.name = result.rows[0].name;
+    this.description = result.rows[0].description;
+
+    return this;
+  }
+
   toJSON() {
     return {
       id: this.id,

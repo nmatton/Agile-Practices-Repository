@@ -94,12 +94,65 @@ router.get('/goals', async (req, res) => {
   try {
     const goals = await Goal.findAll();
     
-    res.json(goals);
+    res.json({
+      success: true,
+      data: goals
+    });
   } catch (error) {
     console.error('Error fetching goals:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch goals',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/practices/by-goals - Filter practices by goal IDs
+router.get('/by-goals', parsePaginationParams, addPaginationHelpers, async (req, res) => {
+  try {
+    const { goalIds } = req.query;
+    const { page, limit, offset } = req.pagination;
+    
+    if (!goalIds) {
+      return res.status(400).json({
+        success: false,
+        message: 'goalIds parameter is required'
+      });
+    }
+    
+    // Parse comma-separated goal IDs
+    const goalIdArray = goalIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+    
+    if (goalIdArray.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid goal IDs are required'
+      });
+    }
+    
+    // Use the existing filtering logic but with multiple goals
+    const result = await QueryOptimizationService.searchPracticesOptimized(
+      null, // no search term
+      { goalIds: goalIdArray }, // multiple goal IDs
+      { limit, offset }
+    );
+    
+    res.json({
+      success: true,
+      data: result.practices,
+      pagination: {
+        page,
+        limit,
+        total: result.totalCount,
+        totalPages: Math.ceil(result.totalCount / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error filtering practices by goals:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to filter practices by goals',
       error: error.message
     });
   }

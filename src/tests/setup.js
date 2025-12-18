@@ -1,12 +1,19 @@
-// Test setup configuration
-require('dotenv').config({ path: '.env' });
+// Test setup file
+process.env.NODE_ENV = 'test';
 
-// Set test timeout for property-based tests
+// Set test timeout
 jest.setTimeout(30000);
 
-// Global test configuration
-global.console = {
-  ...console,
-  // Suppress console.log during tests unless needed
-  log: process.env.NODE_ENV === 'test' ? jest.fn() : console.log,
-};
+// Mock console.log in tests to reduce noise
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+
+beforeAll(() => {
+  console.log = jest.fn();
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.log = originalConsoleLog;
+  console.error = originalConsoleError;
+});

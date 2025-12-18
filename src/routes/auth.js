@@ -13,6 +13,7 @@ router.post('/register', async (req, res) => {
     // Validate passwords match
     if (password !== confirmPassword) {
       return res.status(400).json({ 
+        success: false,
         error: 'Passwords do not match' 
       });
     }
@@ -32,20 +33,21 @@ router.post('/register', async (req, res) => {
     }
 
     res.status(201).json({
-      message: 'Registration successful',
+      success: true,
+      message: 'User registered successfully',
       user: person.toJSON()
     });
 
   } catch (error) {
     if (error.message === 'Email already exists') {
-      return res.status(409).json({ error: error.message });
+      return res.status(409).json({ success: false, error: error.message });
     }
     if (error.message === 'Invalid email format') {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ success: false, error: error.message });
     }
     
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ success: false, error: 'Registration failed' });
   }
 });
 
@@ -56,6 +58,7 @@ router.post('/login', async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ 
+        success: false,
         error: 'Email and password are required' 
       });
     }
@@ -64,6 +67,7 @@ router.post('/login', async (req, res) => {
     const person = await Person.findByEmail(email);
     if (!person) {
       return res.status(401).json({ 
+        success: false,
         error: 'Invalid credentials' 
       });
     }
@@ -72,6 +76,7 @@ router.post('/login', async (req, res) => {
     const isValidPassword = await person.validatePassword(password);
     if (!isValidPassword) {
       return res.status(401).json({ 
+        success: false,
         error: 'Invalid credentials' 
       });
     }
@@ -79,15 +84,27 @@ router.post('/login', async (req, res) => {
     // Create session
     req.session.userId = person.id;
     req.session.userEmail = person.email;
+    req.session.userRole = person.roleId;
 
-    res.json({
-      message: 'Login successful',
-      user: person.toJSON()
+    // Save session explicitly and ensure it's persisted
+    return new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ success: false, error: 'Session creation failed' });
+        }
+        
+        res.json({
+          success: true,
+          message: 'Login successful',
+          user: person.toJSON()
+        });
+      });
     });
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ success: false, error: 'Login failed' });
   }
 });
 
@@ -96,21 +113,21 @@ router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error('Logout error:', err);
-      return res.status(500).json({ error: 'Logout failed' });
+      return res.status(500).json({ success: false, error: 'Logout failed' });
     }
     
     res.clearCookie('connect.sid');
-    res.json({ message: 'Logout successful' });
+    res.json({ success: true, message: 'Logout successful' });
   });
 });
 
 // Get current user
 router.get('/me', requireAuth, async (req, res) => {
   try {
-    res.json({ user: req.user.toJSON() });
+    res.json({ success: true, user: req.user.toJSON() });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({ error: 'Failed to get user information' });
+    res.status(500).json({ success: false, error: 'Failed to get user information' });
   }
 });
 

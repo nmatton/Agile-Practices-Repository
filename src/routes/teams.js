@@ -3,17 +3,18 @@ const Team = require('../models/Team');
 const Universe = require('../models/Universe');
 const Person = require('../models/Person');
 const emailService = require('../services/emailService');
-const { requireAuth, requireTeamMember } = require('../middleware/auth');
+const { requireAuth, requireTeamMember, requireTeamManager } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Create a new team
-router.post('/', requireAuth, requireTeamMember, async (req, res) => {
+// Create a new team - requires team management privileges
+router.post('/', requireAuth, requireTeamManager, async (req, res) => {
   try {
     const { name, description } = req.body;
 
     if (!name) {
       return res.status(400).json({ 
+        success: false,
         error: 'Team name is required' 
       });
     }
@@ -22,6 +23,7 @@ router.post('/', requireAuth, requireTeamMember, async (req, res) => {
     const existingTeam = await Team.findByName(name);
     if (existingTeam) {
       return res.status(409).json({ 
+        success: false,
         error: 'Team name already exists' 
       });
     }
@@ -41,25 +43,38 @@ router.post('/', requireAuth, requireTeamMember, async (req, res) => {
     });
 
     res.status(201).json({
+      success: true,
       message: 'Team created successfully',
+      data: team.toJSON(),
       team: team.toJSON(),
       universe: universe.toJSON()
     });
 
   } catch (error) {
     console.error('Team creation error:', error);
-    res.status(500).json({ error: 'Failed to create team' });
+    res.status(500).json({ success: false, error: 'Failed to create team' });
   }
 });
 
 // Get teams for current user
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const teams = await Team.getTeamsForPerson(req.user.id);
+    res.json({ success: true, data: teams.map(team => team.toJSON()) });
+  } catch (error) {
+    console.error('Get teams error:', error);
+    res.status(500).json({ success: false, error: 'Failed to get teams' });
+  }
+});
+
+// Alternative endpoint for backward compatibility
 router.get('/my-teams', requireAuth, async (req, res) => {
   try {
     const teams = await Team.getTeamsForPerson(req.user.id);
-    res.json({ teams: teams.map(team => team.toJSON()) });
+    res.json({ success: true, data: teams.map(team => team.toJSON()) });
   } catch (error) {
     console.error('Get teams error:', error);
-    res.status(500).json({ error: 'Failed to get teams' });
+    res.status(500).json({ success: false, error: 'Failed to get teams' });
   }
 });
 
@@ -70,31 +85,73 @@ router.get('/:teamId', requireAuth, async (req, res) => {
     
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ success: false, error: 'Team not found' });
     }
 
     // Check if user is a member of this team
     const isMember = await team.isMember(req.user.id);
     if (!isMember) {
-      return res.status(403).json({ error: 'Access denied - not a team member' });
+      return res.status(403).json({ success: false, error: 'Access denied - not a team member' });
     }
 
     const members = await team.getMembers();
     const universes = await Universe.findByTeamId(team.id);
 
     res.json({
-      team: team.toJSON(),
-      members,
-      universes: universes.map(u => u.toJSON())
+      success: true,
+      data: {
+        ...team.toJSON(),
+        members: members,
+        universes: universes.map(u => u.toJSON())
+      }
     });
 
   } catch (error) {
     console.error('Get team details error:', error);
-    res.status(500).json({ error: 'Failed to get team details' });
+    res.status(500).json({ success: false, error: 'Failed to get team details' });
   }
 });
 
-// Invite member to team
+// Update team - requires team membership and team management privileges
+router.put('/:teamId', requireAuth, requireTeamManager, async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { name, description } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Team name is required' 
+      });
+    }
+
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ success: false, error: 'Team not found' });
+    }
+
+    // Check if user is a member of this team
+    const isMember = await team.isMember(req.user.id);
+    if (!isMember) {
+      return res.status(403).json({ success: false, error: 'Access denied - not a team member' });
+    }
+
+    // Update team
+    const updatedTeam = await team.update({ name, description });
+
+    res.json({
+      success: true,
+      message: 'Team updated successfully',
+      data: updatedTeam.toJSON()
+    });
+
+  } catch (error) {
+    console.error('Update team error:', error);
+    res.status(500).json({ success: false, error: 'Failed to update team' });
+  }
+});
+
+// Invite member to team - requires team membership
 router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) => {
   try {
     const { teamId } = req.params;
@@ -102,6 +159,7 @@ router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) 
 
     if (!email) {
       return res.status(400).json({ 
+        success: false,
         error: 'Email is required' 
       });
     }
@@ -110,19 +168,20 @@ router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ 
+        success: false,
         error: 'Invalid email format' 
       });
     }
 
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ success: false, error: 'Team not found' });
     }
 
     // Check if current user is a member of this team
     const isMember = await team.isMember(req.user.id);
     if (!isMember) {
-      return res.status(403).json({ error: 'Access denied - not a team member' });
+      return res.status(403).json({ success: false, error: 'Access denied - not a team member' });
     }
 
     // Check if invited person already exists and is already a member
@@ -131,6 +190,7 @@ router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) 
       const isAlreadyMember = await team.isMember(invitedPerson.id);
       if (isAlreadyMember) {
         return res.status(409).json({ 
+          success: false,
           error: 'Person is already a team member' 
         });
       }
@@ -145,14 +205,17 @@ router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) 
     });
 
     res.json({
+      success: true,
       message: 'Invitation sent successfully',
-      invitedEmail: email,
-      teamName: team.name
+      data: {
+        invitedEmail: email,
+        teamName: team.name
+      }
     });
 
   } catch (error) {
     console.error('Team invitation error:', error);
-    res.status(500).json({ error: 'Failed to send invitation' });
+    res.status(500).json({ success: false, error: 'Failed to send invitation' });
   }
 });
 
@@ -163,13 +226,14 @@ router.post('/:teamId/join', requireAuth, async (req, res) => {
 
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ success: false, error: 'Team not found' });
     }
 
     // Check if user is already a member
     const isAlreadyMember = await team.isMember(req.user.id);
     if (isAlreadyMember) {
       return res.status(409).json({ 
+        success: false,
         error: 'You are already a member of this team' 
       });
     }
@@ -178,13 +242,16 @@ router.post('/:teamId/join', requireAuth, async (req, res) => {
     await team.addMember(req.user.id);
 
     res.json({
+      success: true,
       message: 'Successfully joined team',
-      team: team.toJSON()
+      data: {
+        team: team.toJSON()
+      }
     });
 
   } catch (error) {
     console.error('Join team error:', error);
-    res.status(500).json({ error: 'Failed to join team' });
+    res.status(500).json({ success: false, error: 'Failed to join team' });
   }
 });
 
@@ -195,13 +262,14 @@ router.delete('/:teamId/leave', requireAuth, async (req, res) => {
 
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ success: false, error: 'Team not found' });
     }
 
     // Check if user is a member
     const isMember = await team.isMember(req.user.id);
     if (!isMember) {
       return res.status(404).json({ 
+        success: false,
         error: 'You are not a member of this team' 
       });
     }
@@ -209,17 +277,20 @@ router.delete('/:teamId/leave', requireAuth, async (req, res) => {
     // Remove user from team
     const removed = await team.removeMember(req.user.id);
     if (!removed) {
-      return res.status(500).json({ error: 'Failed to leave team' });
+      return res.status(500).json({ success: false, error: 'Failed to leave team' });
     }
 
     res.json({
+      success: true,
       message: 'Successfully left team',
-      teamName: team.name
+      data: {
+        teamName: team.name
+      }
     });
 
   } catch (error) {
     console.error('Leave team error:', error);
-    res.status(500).json({ error: 'Failed to leave team' });
+    res.status(500).json({ success: false, error: 'Failed to leave team' });
   }
 });
 
@@ -230,51 +301,53 @@ router.get('/:teamId/universes', requireAuth, async (req, res) => {
 
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ success: false, error: 'Team not found' });
     }
 
     // Check if user is a member
     const isMember = await team.isMember(req.user.id);
     if (!isMember) {
-      return res.status(403).json({ error: 'Access denied - not a team member' });
+      return res.status(403).json({ success: false, error: 'Access denied - not a team member' });
     }
 
     const universes = await Universe.findByTeamId(teamId);
-    res.json({ universes: universes.map(u => u.toJSON()) });
+    res.json({ success: true, data: universes.map(u => u.toJSON()) });
 
   } catch (error) {
     console.error('Get universes error:', error);
-    res.status(500).json({ error: 'Failed to get universes' });
+    res.status(500).json({ success: false, error: 'Failed to get universes' });
   }
 });
 
 // Create universe for team
-router.post('/:teamId/universes', requireAuth, requireTeamMember, async (req, res) => {
+router.post('/:teamId/universes', requireAuth, async (req, res) => {
   try {
     const { teamId } = req.params;
     const { name, description } = req.body;
 
     if (!name) {
       return res.status(400).json({ 
+        success: false,
         error: 'Universe name is required' 
       });
     }
 
     const team = await Team.findById(teamId);
     if (!team) {
-      return res.status(404).json({ error: 'Team not found' });
+      return res.status(404).json({ success: false, error: 'Team not found' });
     }
 
     // Check if user is a member
     const isMember = await team.isMember(req.user.id);
     if (!isMember) {
-      return res.status(403).json({ error: 'Access denied - not a team member' });
+      return res.status(403).json({ success: false, error: 'Access denied - not a team member' });
     }
 
     // Check if universe name already exists for this team
     const existingUniverse = await Universe.findByTeamAndName(teamId, name);
     if (existingUniverse) {
       return res.status(409).json({ 
+        success: false,
         error: 'Universe name already exists for this team' 
       });
     }
@@ -286,13 +359,16 @@ router.post('/:teamId/universes', requireAuth, requireTeamMember, async (req, re
     });
 
     res.status(201).json({
+      success: true,
       message: 'Universe created successfully',
-      universe: universe.toJSON()
+      data: {
+        universe: universe.toJSON()
+      }
     });
 
   } catch (error) {
     console.error('Create universe error:', error);
-    res.status(500).json({ error: 'Failed to create universe' });
+    res.status(500).json({ success: false, error: 'Failed to create universe' });
   }
 });
 

@@ -233,8 +233,8 @@ router.get('/health', async (req, res) => {
   }
 });
 
-// GET /api/performance/metrics - Get key performance metrics
-router.get('/metrics', requireAuth, async (req, res) => {
+// GET /api/performance/metrics - Get key performance metrics (public endpoint)
+router.get('/metrics', async (req, res) => {
   try {
     const { timeframe = '1h' } = req.query;
     

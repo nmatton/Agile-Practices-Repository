@@ -31,8 +31,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Session configuration
-app.use(session({
-  store: new RedisStore({ client: redisClient }),
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
@@ -41,7 +40,14 @@ app.use(session({
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
-}));
+};
+
+// Use Redis store in production/development, memory store in test
+if (process.env.NODE_ENV !== 'test') {
+  sessionConfig.store = new RedisStore({ client: redisClient });
+}
+
+app.use(session(sessionConfig));
 
 // Health check endpoint
 app.get('/health', async (req, res) => {

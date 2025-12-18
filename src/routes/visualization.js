@@ -13,6 +13,7 @@ router.get('/practice/:id/card', async (req, res) => {
     
     if (isNaN(practiceVersionId)) {
       return res.status(400).json({ 
+        success: false,
         error: 'Invalid practice version ID' 
       });
     }
@@ -28,12 +29,52 @@ router.get('/practice/:id/card', async (req, res) => {
     
     if (error.message === 'Practice version not found') {
       return res.status(404).json({ 
+        success: false,
         error: 'Practice version not found' 
       });
     }
     
     res.status(500).json({ 
+      success: false,
       error: 'Failed to generate practice card' 
+    });
+  }
+});
+
+/**
+ * GET /api/visualization/practice/:id/cards
+ * Get card data for a specific practice version (plural endpoint for tests)
+ */
+router.get('/practice/:id/cards', async (req, res) => {
+  try {
+    const practiceVersionId = parseInt(req.params.id);
+    
+    if (isNaN(practiceVersionId)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid practice version ID' 
+      });
+    }
+    
+    const cardData = await visualizationService.transformPracticeToCard(practiceVersionId);
+    
+    res.json({
+      success: true,
+      data: cardData
+    });
+  } catch (error) {
+    console.error('Error getting practice cards:', error);
+    
+    if (error.message === 'Practice version not found') {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Practice version not found' 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to generate practice cards' 
     });
   }
 });

@@ -6,54 +6,75 @@ const pool = require('../config/database');
  */
 async function cleanupTestData(emailPattern = '%test_%') {
   try {
-    // Start a transaction to ensure atomicity
-    await pool.query('BEGIN');
-
-    // 1. Clean up records that reference Person but don't have CASCADE DELETE
-    await pool.query("DELETE FROM practiceDifficultyFlag WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("DELETE FROM bfprofile WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("DELETE FROM teammember WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
+    // Disable foreign key checks temporarily for cleanup
+    await pool.query('SET session_replication_role = replica');
     
-    // 2. Clean up experiencefeedback if it exists
-    try {
-      await pool.query("DELETE FROM experiencefeedback WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-      await pool.query("DELETE FROM experiencefeedback WHERE validatedby IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    } catch (error) {
-      // Table might not exist yet, ignore error
-      if (!error.message.includes('does not exist')) {
-        throw error;
+    // Clean up all test data
+    const cleanupQueries = [
+      // Experience feedback (if exists)
+      "DELETE FROM experiencefeedback WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1) OR validatedby IN (SELECT id FROM Person WHERE email LIKE $1)",
+      
+      // Level 4 tables (most dependent)
+      "DELETE FROM recommendationgoal WHERE recommendationid IN (SELECT id FROM recommendation WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM practiceassociation WHERE sourcepracticeversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)) OR targetpracticeversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      
+      // Level 3 tables (associations and details)
+      "DELETE FROM practiceDifficultyFlag WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM PracticeVersionUniverse WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM affinityPractice WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM personpracticeaffinity WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM recommendation WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM completioncriteria WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM benefit WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM pitfall WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM guideline WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM workproductpractice WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM roleuse WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM metricpractice WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM practiceversionactivity WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      "DELETE FROM practicemethod WHERE practiceversionid IN (SELECT id FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)) OR methodversionid IN (SELECT id FROM methodversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1))",
+      
+      // Level 2 tables (direct Person dependencies)
+      "DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM methodversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM practiceversion WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM bfprofile WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "DELETE FROM teammember WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      
+      // Set lastUpdateById to NULL for records that reference Person
+      "UPDATE activity SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "UPDATE workproduct SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "UPDATE role SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "UPDATE metric SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "UPDATE practice SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      "UPDATE method SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)",
+      
+      // Finally delete Person records
+      "DELETE FROM Person WHERE email LIKE $1"
+    ];
+    
+    for (const query of cleanupQueries) {
+      try {
+        await pool.query(query, [emailPattern]);
+      } catch (error) {
+        // Ignore errors for tables that might not exist
+        if (!error.message.includes('does not exist')) {
+          console.warn('Cleanup query failed:', query, error.message);
+        }
       }
     }
     
-    // 2.1 Clean up any remaining affinitysurveyresults that might be missed
-    try {
-      await pool.query("DELETE FROM affinitysurveyresults WHERE personid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    } catch (error) {
-      // Already cleaned up above, but try again in case of race conditions
-    }
+    // Re-enable foreign key checks
+    await pool.query('SET session_replication_role = DEFAULT');
     
-    // 3. Update records that reference Person via lastUpdateById to NULL
-    await pool.query("UPDATE practiceversion SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE methodversion SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE activity SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE workproduct SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE role SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE metric SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE guideline SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE pitfall SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE benefit SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    await pool.query("UPDATE recommendation SET lastupdatebyid = NULL WHERE lastupdatebyid IN (SELECT id FROM Person WHERE email LIKE $1)", [emailPattern]);
-    
-    // 4. Finally delete Person records
-    await pool.query("DELETE FROM Person WHERE email LIKE $1", [emailPattern]);
-    
-    // Commit the transaction
-    await pool.query('COMMIT');
   } catch (error) {
-    // Rollback on error
-    await pool.query('ROLLBACK');
+    // Re-enable foreign key checks on error
+    try {
+      await pool.query('SET session_replication_role = DEFAULT');
+    } catch (resetError) {
+      console.error('Failed to reset foreign key checks:', resetError);
+    }
+    console.error('Cleanup failed:', error);
     throw error;
   }
 }
@@ -63,16 +84,22 @@ async function cleanupTestData(emailPattern = '%test_%') {
  */
 async function cleanupTestTeams(namePattern = 'Test%') {
   try {
-    await pool.query('BEGIN');
+    // Disable foreign key checks temporarily
+    await pool.query('SET session_replication_role = replica');
     
     // Clean up team-related data
     await pool.query('DELETE FROM teammember WHERE teamid IN (SELECT id FROM team WHERE name LIKE $1)', [namePattern]);
     await pool.query('DELETE FROM universe WHERE teamid IN (SELECT id FROM team WHERE name LIKE $1)', [namePattern]);
     await pool.query('DELETE FROM team WHERE name LIKE $1', [namePattern]);
     
-    await pool.query('COMMIT');
+    // Re-enable foreign key checks
+    await pool.query('SET session_replication_role = DEFAULT');
   } catch (error) {
-    await pool.query('ROLLBACK');
+    try {
+      await pool.query('SET session_replication_role = DEFAULT');
+    } catch (resetError) {
+      console.error('Failed to reset foreign key checks:', resetError);
+    }
     throw error;
   }
 }
@@ -82,15 +109,21 @@ async function cleanupTestTeams(namePattern = 'Test%') {
  */
 async function cleanupTestPractices(namePattern = '%Test%') {
   try {
-    await pool.query('BEGIN');
+    // Disable foreign key checks temporarily
+    await pool.query('SET session_replication_role = replica');
     
     // Clean up practice-related data in correct order
     await pool.query('DELETE FROM practiceversion WHERE practiceid IN (SELECT id FROM practice WHERE name LIKE $1)', [namePattern]);
     await pool.query('DELETE FROM practice WHERE name LIKE $1', [namePattern]);
     
-    await pool.query('COMMIT');
+    // Re-enable foreign key checks
+    await pool.query('SET session_replication_role = DEFAULT');
   } catch (error) {
-    await pool.query('ROLLBACK');
+    try {
+      await pool.query('SET session_replication_role = DEFAULT');
+    } catch (resetError) {
+      console.error('Failed to reset foreign key checks:', resetError);
+    }
     throw error;
   }
 }

@@ -6,12 +6,12 @@ const Practice = require('../models/Practice');
 const PracticeVersion = require('../models/PracticeVersion');
 const Goal = require('../models/Goal');
 const PersonPracticeAffinity = require('../models/PersonPracticeAffinity');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireTeamMember } = require('../middleware/auth');
 const cacheService = require('../services/cacheService');
 const QueryOptimizationService = require('../services/queryOptimizationService');
 
 // GET /api/dashboard/teams/:teamId - Get team dashboard with active practices and OAR coverage (optimized)
-router.get('/teams/:teamId', requireAuth, async (req, res) => {
+router.get('/teams/:teamId', requireAuth, requireTeamMember, async (req, res) => {
   try {
     const { teamId } = req.params;
     const teamIdInt = parseInt(teamId);
@@ -119,7 +119,7 @@ router.get('/teams/:teamId', requireAuth, async (req, res) => {
 });
 
 // POST /api/dashboard/teams/:teamId/practices - Add practice to team universe
-router.post('/teams/:teamId/practices', requireAuth, async (req, res) => {
+router.post('/teams/:teamId/practices', requireAuth, requireTeamMember, async (req, res) => {
   try {
     const { teamId } = req.params;
     const { practiceVersionId, universeId } = req.body;
@@ -193,7 +193,7 @@ router.post('/teams/:teamId/practices', requireAuth, async (req, res) => {
 });
 
 // DELETE /api/dashboard/teams/:teamId/practices/:practiceVersionId - Remove practice from team universe
-router.delete('/teams/:teamId/practices/:practiceVersionId', requireAuth, async (req, res) => {
+router.delete('/teams/:teamId/practices/:practiceVersionId', requireAuth, requireTeamMember, async (req, res) => {
   try {
     const { teamId, practiceVersionId } = req.params;
     const { universeId } = req.query;
@@ -257,7 +257,7 @@ router.delete('/teams/:teamId/practices/:practiceVersionId', requireAuth, async 
 });
 
 // GET /api/dashboard/teams/:teamId/affinity/:practiceVersionId - Get detailed affinity breakdown for a practice
-router.get('/teams/:teamId/affinity/:practiceVersionId', requireAuth, async (req, res) => {
+router.get('/teams/:teamId/affinity/:practiceVersionId', requireAuth, requireTeamMember, async (req, res) => {
   try {
     const { teamId, practiceVersionId } = req.params;
 
@@ -396,5 +396,60 @@ async function getDetailedTeamAffinity(teamId, practiceVersionId) {
     throw error;
   }
 }
+
+// GET /api/dashboard/user - Get user dashboard with personal data
+router.get('/user', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get user's teams
+    const teams = await Team.getTeamsForPerson(userId);
+    
+    // Get user's personality profile
+    const PersonalityService = require('../services/personalityService');
+    let personalityProfile = null;
+    try {
+      personalityProfile = await PersonalityService.getPersonalityProfile(userId);
+    } catch (error) {
+      console.warn('No personality profile found for user:', userId);
+    }
+    
+    // Get user's practice affinities
+    const affinities = await PersonPracticeAffinity.findByPersonId(userId);
+    
+    // Get user's recent activity (simplified)
+    const recentActivity = {
+      teamsJoined: teams.length,
+      affinitiesCalculated: affinities.length,
+      hasPersonalityProfile: !!personalityProfile
+    };
+
+    const dashboardData = {
+      user: {
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        roleId: req.user.roleId
+      },
+      teams: teams.map(team => team.toJSON()),
+      personalityProfile,
+      affinityCount: affinities.length,
+      recentActivity
+    };
+
+    res.json({
+      success: true,
+      data: dashboardData
+    });
+
+  } catch (error) {
+    console.error('Error fetching user dashboard:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user dashboard',
+      error: error.message
+    });
+  }
+});
 
 module.exports = router;

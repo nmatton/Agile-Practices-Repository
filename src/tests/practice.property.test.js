@@ -20,7 +20,7 @@ const mockPracticeDatabase = {
   nextVersionId: 1,
   
   async createPractice(practiceData) {
-    if (!practiceData.name) {
+    if (!practiceData.name || practiceData.name.trim().length === 0) {
       throw new Error('Practice name is required');
     }
 
