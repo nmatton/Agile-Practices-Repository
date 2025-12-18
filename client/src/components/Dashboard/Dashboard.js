@@ -28,24 +28,38 @@ const Dashboard = () => {
   useEffect(() => {
     const teamParam = searchParams.get('team');
     if (teamParam && teams && teams.length > 0) {
-      setSelectedTeamId(teamParam);
+      // Verify the team ID exists in the user's teams
+      const teamExists = teams.find(team => team.id.toString() === teamParam);
+      if (teamExists) {
+        setSelectedTeamId(teamParam);
+      } else {
+        // Team ID from URL doesn't exist, use first available team
+        setSelectedTeamId(teams[0].id.toString());
+      }
     } else if (teams && teams.length > 0 && !selectedTeamId) {
-      setSelectedTeamId(teams[0].id);
+      setSelectedTeamId(teams[0].id.toString());
     }
   }, [searchParams, teams, selectedTeamId]);
 
   useEffect(() => {
-    if (selectedTeamId) {
-      dispatch(fetchDashboardData(selectedTeamId));
-      dispatch(fetchRecommendations(selectedTeamId));
+    if (selectedTeamId && teams && teams.length > 0) {
+      // Verify the selected team ID exists in the user's teams
+      const teamExists = teams.find(team => team.id.toString() === selectedTeamId.toString());
+      if (teamExists) {
+        dispatch(fetchDashboardData(selectedTeamId));
+        dispatch(fetchRecommendations(selectedTeamId));
+      } else {
+        // Clear any existing error if team doesn't exist
+        console.warn(`Team ID ${selectedTeamId} not found in user's teams`);
+      }
     }
-  }, [dispatch, selectedTeamId]);
+  }, [dispatch, selectedTeamId, teams]);
 
   const handleTeamChange = (teamId) => {
     setSelectedTeamId(teamId);
   };
 
-  const selectedTeam = teams && Array.isArray(teams) ? teams.find(team => team.id === selectedTeamId) : null;
+  const selectedTeam = teams && Array.isArray(teams) ? teams.find(team => team.id.toString() === selectedTeamId?.toString()) : null;
 
   if (loading && !activePractices.length) {
     return (
@@ -84,7 +98,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {error && (
+      {error && error !== 'No team selected' && error !== 'Authentication required' && (
         <div className="alert alert-error">
           {error}
         </div>

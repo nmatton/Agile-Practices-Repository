@@ -8,9 +8,18 @@ export const fetchDashboardData = createAsyncThunk(
   'dashboard/fetchDashboardData',
   async (teamId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/dashboard/${teamId}`);
+      if (!teamId) {
+        return rejectWithValue('No team selected');
+      }
+      const response = await axios.get(`${API_BASE_URL}/api/dashboard/teams/${teamId}`);
       return response.data;
     } catch (error) {
+      if (error.response?.status === 401) {
+        return rejectWithValue('Authentication required');
+      }
+      if (error.response?.status === 404) {
+        return rejectWithValue('Team not found or no access');
+      }
       return rejectWithValue(
         error.response?.data?.message || 'Failed to fetch dashboard data'
       );
@@ -22,9 +31,18 @@ export const fetchRecommendations = createAsyncThunk(
   'dashboard/fetchRecommendations',
   async (teamId, { rejectWithValue }) => {
     try {
+      if (!teamId) {
+        return rejectWithValue('No team selected');
+      }
       const response = await axios.get(`${API_BASE_URL}/api/recommendations/${teamId}`);
       return response.data;
     } catch (error) {
+      if (error.response?.status === 401) {
+        return rejectWithValue('Authentication required');
+      }
+      if (error.response?.status === 404) {
+        return rejectWithValue('Team not found or no access');
+      }
       return rejectWithValue(
         error.response?.data?.message || 'Failed to fetch recommendations'
       );
@@ -62,9 +80,10 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
         state.loading = false;
-        state.activePractices = action.payload.activePractices || [];
-        state.oarCoverage = action.payload.oarCoverage || [];
-        state.affinityScores = action.payload.affinityScores || {};
+        const data = action.payload.data || action.payload;
+        state.activePractices = data.activePractices || [];
+        state.oarCoverage = data.oarCoverage?.covered || [];
+        state.affinityScores = data.affinityScores || {};
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;
@@ -77,7 +96,7 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchRecommendations.fulfilled, (state, action) => {
         state.loading = false;
-        state.recommendations = action.payload;
+        state.recommendations = Array.isArray(action.payload) ? action.payload : action.payload.data || [];
       })
       .addCase(fetchRecommendations.rejected, (state, action) => {
         state.loading = false;

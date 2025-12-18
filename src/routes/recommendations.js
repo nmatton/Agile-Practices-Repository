@@ -1,7 +1,64 @@
 const express = require('express');
 const router = express.Router();
 const RecommendationService = require('../services/recommendationService');
-const { requireAuth } = require('../middleware/auth');
+const Team = require('../models/Team');
+const { requireAuth, requireTeamMember } = require('../middleware/auth');
+
+// GET /api/recommendations/:teamId - Get recommendations for a team
+router.get('/:teamId', requireAuth, requireTeamMember, async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const teamIdInt = parseInt(teamId);
+    
+    // Get team and verify it exists
+    const team = await Team.findById(teamIdInt);
+    if (!team) {
+      return res.status(404).json({
+        success: false,
+        message: 'Team not found'
+      });
+    }
+    
+    // Get team members
+    const members = await team.getMembers();
+    if (members.length === 0) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'No team members found - add members to get recommendations'
+      });
+    }
+    
+    const memberIds = members.map(member => member.id);
+    
+    // Get comprehensive recommendations for the team
+    const recommendations = await RecommendationService.getContextAwareRecommendations(
+      memberIds,
+      null, // contextId - could be enhanced to use team's context
+      [] // goalIds - could be enhanced to use team's goals
+    );
+    
+    // Format recommendations for dashboard display
+    const formattedRecommendations = recommendations.map(rec => ({
+      id: rec.practiceVersionId,
+      practiceId: rec.practiceId,
+      practiceName: rec.practiceName,
+      affinityScore: rec.teamAffinity / 100, // Convert to 0-1 scale
+      reason: rec.reason || `Recommended based on team personality profile (${Math.round(rec.teamAffinity)}% match)`,
+      objectives: rec.goals ? rec.goals.map(g => g.name) : []
+    }));
+    
+    res.json(formattedRecommendations);
+    
+  } catch (error) {
+    console.error('Error getting team recommendations:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch recommendations',
+      error: error.message
+    });
+  }
+});
 
 // GET /api/recommendations/alternatives/:practiceVersionId - Get alternative practices for a problematic practice
 router.get('/alternatives/:practiceVersionId', requireAuth, async (req, res) => {
