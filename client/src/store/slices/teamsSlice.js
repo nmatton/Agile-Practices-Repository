@@ -93,7 +93,7 @@ const teamsSlice = createSlice({
       })
       .addCase(fetchUserTeams.fulfilled, (state, action) => {
         state.loading = false;
-        state.teams = action.payload;
+        state.teams = action.payload.data || action.payload;
       })
       .addCase(fetchUserTeams.rejected, (state, action) => {
         state.loading = false;
@@ -106,7 +106,8 @@ const teamsSlice = createSlice({
       })
       .addCase(createTeam.fulfilled, (state, action) => {
         state.loading = false;
-        state.teams.push(action.payload);
+        const newTeam = action.payload.data || action.payload.team || action.payload;
+        state.teams.push(newTeam);
       })
       .addCase(createTeam.rejected, (state, action) => {
         state.loading = false;
@@ -131,7 +132,7 @@ const teamsSlice = createSlice({
       })
       .addCase(fetchTeamDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentTeam = action.payload;
+        state.currentTeam = action.payload.data || action.payload;
       })
       .addCase(fetchTeamDetails.rejected, (state, action) => {
         state.loading = false;

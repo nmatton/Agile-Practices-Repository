@@ -27,9 +27,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     const teamParam = searchParams.get('team');
-    if (teamParam && teams.length > 0) {
+    if (teamParam && teams && teams.length > 0) {
       setSelectedTeamId(teamParam);
-    } else if (teams.length > 0 && !selectedTeamId) {
+    } else if (teams && teams.length > 0 && !selectedTeamId) {
       setSelectedTeamId(teams[0].id);
     }
   }, [searchParams, teams, selectedTeamId]);
@@ -45,7 +45,7 @@ const Dashboard = () => {
     setSelectedTeamId(teamId);
   };
 
-  const selectedTeam = teams.find(team => team.id === selectedTeamId);
+  const selectedTeam = teams && Array.isArray(teams) ? teams.find(team => team.id === selectedTeamId) : null;
 
   if (loading && !activePractices.length) {
     return (
@@ -63,7 +63,7 @@ const Dashboard = () => {
           <p>Welcome back, {user?.name}! Here's your team's agile practice overview.</p>
         </div>
         
-        {teams.length > 1 && (
+        {teams && teams.length > 1 && (
           <div className="team-selector">
             <label htmlFor="team-select" className="team-selector-label">
               Select Team:
@@ -74,7 +74,7 @@ const Dashboard = () => {
               onChange={(e) => handleTeamChange(e.target.value)}
               className="form-control"
             >
-              {teams.map((team) => (
+              {teams && teams.map((team) => (
                 <option key={team.id} value={team.id}>
                   {team.name}
                 </option>
@@ -90,7 +90,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {!selectedTeam && teams.length === 0 ? (
+      {!selectedTeam && (!teams || teams.length === 0) ? (
         <div className="no-teams-dashboard">
           <div className="no-teams-content">
             <h3>No teams yet</h3>
