@@ -96,7 +96,7 @@ const PracticeList = () => {
                 className="form-control"
               >
                 <option value="">All Objectives</option>
-                {goals.map((goal) => (
+                {Array.isArray(goals) && goals.map((goal) => (
                   <option key={goal.id} value={goal.id}>
                     {goal.name}
                   </option>

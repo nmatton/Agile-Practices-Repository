@@ -121,8 +121,15 @@ const practicesSlice = createSlice({
         state.error = action.payload;
       })
       // Fetch goals
+      .addCase(fetchGoals.pending, (state) => {
+        state.error = null;
+      })
       .addCase(fetchGoals.fulfilled, (state, action) => {
-        state.goals = action.payload;
+        state.goals = action.payload.data || action.payload;
+      })
+      .addCase(fetchGoals.rejected, (state, action) => {
+        state.error = action.payload;
+        state.goals = []; // Ensure goals is always an array
       });
   },
 });
