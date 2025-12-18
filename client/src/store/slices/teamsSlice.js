@@ -65,6 +65,20 @@ export const fetchTeamDetails = createAsyncThunk(
   }
 );
 
+export const resendInvitation = createAsyncThunk(
+  'teams/resendInvitation',
+  async ({ teamId, invitationId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/teams/${teamId}/invite/${invitationId}/resend`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to resend invitation'
+      );
+    }
+  }
+);
+
 const teamsSlice = createSlice({
   name: 'teams',
   initialState: {
@@ -135,6 +149,18 @@ const teamsSlice = createSlice({
         state.currentTeam = action.payload.data || action.payload;
       })
       .addCase(fetchTeamDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Resend invitation
+      .addCase(resendInvitation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendInvitation.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resendInvitation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

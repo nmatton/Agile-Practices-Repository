@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTeamDetails, inviteToTeam } from '../../store/slices/teamsSlice';
+import { fetchTeamDetails, inviteToTeam, resendInvitation } from '../../store/slices/teamsSlice';
 import InviteMemberModal from './InviteMemberModal';
 import './Teams.css';
 
@@ -21,7 +21,15 @@ const TeamDetail = () => {
     const result = await dispatch(inviteToTeam({ teamId: id, email }));
     if (inviteToTeam.fulfilled.match(result)) {
       setShowInviteModal(false);
-      // Refresh team details to get updated member list
+      // Refresh team details to get updated member list and invitations
+      dispatch(fetchTeamDetails(id));
+    }
+  };
+
+  const handleResendInvitation = async (invitationId) => {
+    const result = await dispatch(resendInvitation({ teamId: id, invitationId }));
+    if (resendInvitation.fulfilled.match(result)) {
+      // Refresh team details to get updated invitation timestamps
       dispatch(fetchTeamDetails(id));
     }
   };
@@ -169,6 +177,86 @@ const TeamDetail = () => {
             </div>
           )}
         </section>
+
+        {/* Pending Invitations */}
+        {team.invitations && team.invitations.length > 0 && (
+          <section className="team-section">
+            <div className="section-header">
+              <h2>Pending Invitations</h2>
+              <span className="section-subtitle">
+                {team.invitations.filter(inv => inv.status === 'pending').length} pending
+              </span>
+            </div>
+            
+            <div className="invitations-list">
+              {team.invitations
+                .filter(invitation => invitation.status === 'pending')
+                .map((invitation) => (
+                <div key={invitation.id} className="invitation-card">
+                  <div className="invitation-info">
+                    <div className="invitation-email">{invitation.invitedEmail}</div>
+                    <div className="invitation-meta">
+                      <span className="invitation-date">
+                        Invited {new Date(invitation.invitedAt).toLocaleDateString()}
+                      </span>
+                      {invitation.inviterName && (
+                        <span className="invitation-inviter">
+                          by {invitation.inviterName}
+                        </span>
+                      )}
+                      {invitation.lastSentAt !== invitation.invitedAt && (
+                        <span className="invitation-resent">
+                          (Resent {new Date(invitation.lastSentAt).toLocaleDateString()})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="invitation-actions">
+                    <button
+                      onClick={() => handleResendInvitation(invitation.id)}
+                      className="btn btn-outline btn-sm"
+                      disabled={loading}
+                    >
+                      {loading ? 'Sending...' : 'Resend'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {team.invitations.filter(inv => inv.status === 'accepted').length > 0 && (
+              <details className="accepted-invitations">
+                <summary>
+                  View accepted invitations ({team.invitations.filter(inv => inv.status === 'accepted').length})
+                </summary>
+                <div className="invitations-list">
+                  {team.invitations
+                    .filter(invitation => invitation.status === 'accepted')
+                    .map((invitation) => (
+                    <div key={invitation.id} className="invitation-card accepted">
+                      <div className="invitation-info">
+                        <div className="invitation-email">{invitation.invitedEmail}</div>
+                        <div className="invitation-meta">
+                          <span className="invitation-date">
+                            Accepted {new Date(invitation.acceptedAt).toLocaleDateString()}
+                          </span>
+                          {invitation.inviterName && (
+                            <span className="invitation-inviter">
+                              (invited by {invitation.inviterName})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="invitation-status">
+                        <span className="status-badge accepted">✓ Accepted</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </section>
+        )}
 
         {/* Active Practices */}
         <section className="team-section">

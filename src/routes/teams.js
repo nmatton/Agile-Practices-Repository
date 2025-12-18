@@ -2,6 +2,7 @@ const express = require('express');
 const Team = require('../models/Team');
 const Universe = require('../models/Universe');
 const Person = require('../models/Person');
+const TeamInvitation = require('../models/TeamInvitation');
 const emailService = require('../services/emailService');
 const { requireAuth, requireTeamMember, requireTeamManager } = require('../middleware/auth');
 
@@ -96,13 +97,15 @@ router.get('/:teamId', requireAuth, async (req, res) => {
 
     const members = await team.getMembers();
     const universes = await Universe.findByTeamId(team.id);
+    const invitations = await TeamInvitation.findByTeamId(team.id);
 
     res.json({
       success: true,
       data: {
         ...team.toJSON(),
         members: members,
-        universes: universes.map(u => u.toJSON())
+        universes: universes.map(u => u.toJSON()),
+        invitations: invitations
       }
     });
 
@@ -194,7 +197,35 @@ router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) 
           error: 'Person is already a team member' 
         });
       }
+      
+      // If user exists but is not a member, add them immediately
+      await team.addMember(invitedPerson.id);
+      
+      // Create invitation record as accepted
+      const invitation = await TeamInvitation.create({
+        teamId: parseInt(teamId),
+        inviterPersonId: req.user.id,
+        invitedEmail: email
+      });
+      await invitation.accept(invitedPerson.id);
+
+      return res.json({
+        success: true,
+        message: 'User added to team immediately (existing account)',
+        data: {
+          invitedEmail: email,
+          teamName: team.name,
+          addedImmediately: true
+        }
+      });
     }
+
+    // Create invitation record
+    const invitation = await TeamInvitation.create({
+      teamId: parseInt(teamId),
+      inviterPersonId: req.user.id,
+      invitedEmail: email
+    });
 
     // Send invitation email
     await emailService.sendTeamInvitation({
@@ -209,7 +240,8 @@ router.post('/:teamId/invite', requireAuth, requireTeamMember, async (req, res) 
       message: 'Invitation sent successfully',
       data: {
         invitedEmail: email,
-        teamName: team.name
+        teamName: team.name,
+        invitation: invitation.toJSON()
       }
     });
 
@@ -316,6 +348,59 @@ router.get('/:teamId/universes', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Get universes error:', error);
     res.status(500).json({ success: false, error: 'Failed to get universes' });
+  }
+});
+
+// Resend invitation
+router.post('/:teamId/invite/:invitationId/resend', requireAuth, requireTeamMember, async (req, res) => {
+  try {
+    const { teamId, invitationId } = req.params;
+
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ success: false, error: 'Team not found' });
+    }
+
+    // Check if current user is a member of this team
+    const isMember = await team.isMember(req.user.id);
+    if (!isMember) {
+      return res.status(403).json({ success: false, error: 'Access denied - not a team member' });
+    }
+
+    const invitation = await TeamInvitation.findById(invitationId);
+    if (!invitation || invitation.teamId !== parseInt(teamId)) {
+      return res.status(404).json({ success: false, error: 'Invitation not found' });
+    }
+
+    if (invitation.status !== 'pending') {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Can only resend pending invitations' 
+      });
+    }
+
+    // Update last sent timestamp
+    await invitation.updateLastSent();
+
+    // Send invitation email
+    await emailService.sendTeamInvitation({
+      recipientEmail: invitation.invitedEmail,
+      teamName: team.name,
+      inviterName: req.user.name,
+      teamId: team.id
+    });
+
+    res.json({
+      success: true,
+      message: 'Invitation resent successfully',
+      data: {
+        invitation: invitation.toJSON()
+      }
+    });
+
+  } catch (error) {
+    console.error('Resend invitation error:', error);
+    res.status(500).json({ success: false, error: 'Failed to resend invitation' });
   }
 });
 

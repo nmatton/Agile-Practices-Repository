@@ -595,6 +595,111 @@
   margin-top: 5px;
 }
 
+/* Invitation Styles */
+.invitations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.invitation-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  background: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.invitation-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.invitation-card.accepted {
+  background: #f8fff8;
+  border-color: #28a745;
+}
+
+.invitation-info {
+  flex: 1;
+}
+
+.invitation-email {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.invitation-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+  flex-wrap: wrap;
+}
+
+.invitation-date {
+  color: #666;
+}
+
+.invitation-inviter {
+  color: #007bff;
+}
+
+.invitation-resent {
+  color: #ffc107;
+  font-style: italic;
+}
+
+.invitation-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.invitation-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.accepted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.accepted-invitations {
+  margin-top: 1rem;
+  border-top: 1px solid #e1e5e9;
+  padding-top: 1rem;
+}
+
+.accepted-invitations summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  padding: 0.5rem 0;
+}
+
+.accepted-invitations summary:hover {
+  color: #007bff;
+}
+
+.section-subtitle {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: normal;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .teams-header {

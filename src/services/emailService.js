@@ -83,7 +83,7 @@ The APR Team
     `;
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || 'noreply@apr.com',
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@apr.com',
       to: recipientEmail,
       subject: subject,
       text: text,
@@ -138,7 +138,7 @@ The APR Team
     `;
 
     const mailOptions = {
-      from: process.env.SMTP_USER || 'noreply@apr.com',
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@apr.com',
       to: recipientEmail,
       subject: subject,
       text: text,

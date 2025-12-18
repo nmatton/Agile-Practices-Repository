@@ -1,5 +1,6 @@
 const express = require('express');
 const Person = require('../models/Person');
+const TeamInvitation = require('../models/TeamInvitation');
 const { requireAuth, requireExpert, requireTeamMember } = require('../middleware/auth');
 const emailService = require('../services/emailService');
 
@@ -21,6 +22,15 @@ router.post('/register', async (req, res) => {
     // Create new user
     const person = await Person.create({ name, email, password });
 
+    // Check for pending team invitations and auto-accept them
+    let joinedTeams = [];
+    try {
+      joinedTeams = await TeamInvitation.acceptAllPendingForEmail(email, person.id);
+    } catch (error) {
+      console.error('Failed to process pending invitations:', error);
+      // Don't fail registration if invitation processing fails
+    }
+
     // Send welcome email (non-blocking)
     try {
       await emailService.sendWelcomeEmail({
@@ -35,7 +45,8 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: person.toJSON()
+      user: person.toJSON(),
+      joinedTeams: joinedTeams
     });
 
   } catch (error) {

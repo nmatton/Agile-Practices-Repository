@@ -123,15 +123,22 @@ class Team {
 
   static async getTeamsForPerson(personId) {
     const result = await pool.query(
-      `SELECT t.id, t.name, t.description
+      `SELECT t.id, t.name, t.description, 
+              COUNT(tm2.personId) as memberCount
        FROM Team t
        JOIN teamMember tm ON t.id = tm.teamId
+       LEFT JOIN teamMember tm2 ON t.id = tm2.teamId
        WHERE tm.personId = $1
+       GROUP BY t.id, t.name, t.description
        ORDER BY t.name`,
       [personId]
     );
 
-    return result.rows.map(row => new Team(row));
+    return result.rows.map(row => {
+      const team = new Team(row);
+      team.memberCount = parseInt(row.membercount);
+      return team;
+    });
   }
 
   async update({ name, description }) {
@@ -157,7 +164,8 @@ class Team {
     return {
       id: this.id,
       name: this.name,
-      description: this.description
+      description: this.description,
+      memberCount: this.memberCount
     };
   }
 }
