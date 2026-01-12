@@ -1,9 +1,10 @@
 [
   {
     "name": "Sprint Planning",
+    "type": "Planning Practice",
     "objective": "Determine what can be delivered in the Sprint and how that work will be achieved.",
     "description": "This event initiates the sprint. The entire Scrum Team collaborates to determine what can be delivered and, crucially, how that work will be achieved. It involves crafting a Sprint Goal that provides coherence to the selected work items and breaking down High-Level items into actionable tasks.",
-    "tags": [
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Inspection",
@@ -11,7 +12,7 @@
       "Self-Organization",
       "Active Stakeholder Participation"
     ],
-    "parent_method": "Scrum",
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -59,29 +60,31 @@
         "responsibility": "Consulted"
       }
     ],
-    "benefits": [
-      "Increases team alignment.",
-      "Improves work distribution.",
-      "Reduces uncertainty by detailed task planning."
-    ],
-    "pitfalls": [
-      "Overallocating work beyond team capacity.",
-      "Focusing on filling the bucket rather than the Goal."
-    ],
-    "resources": [
-      {
-        "name": "Scrum Guide",
-        "url": "https://scrumguides.org",
-        "type": "Guide"
-      }
-    ],
     "metrics": [
       {
         "name": "Commitment Reliability",
         "unit": "Percentage",
-        "formula": "$$\\frac{\\text{Completed Points}}{\\text{Committed Points}} \\times 100$$"
+        "formula": "Completed Points / Committed Points * 100"
       }
     ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Scrum Guide",
+          "url": "https://scrumguides.org",
+          "type": "Guide"
+        }
+      ],
+      "pitfalls": [
+        "Overallocating work beyond team capacity.",
+        "Focusing on filling the bucket rather than the Goal."
+      ],
+      "benefits": [
+        "Increases team alignment.",
+        "Improves work distribution.",
+        "Reduces uncertainty by detailed task planning."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Planning Poker",
@@ -90,21 +93,26 @@
       {
         "target_practice": "Definition of Done (DoD)",
         "association_type": "Dependency"
+      },
+      {
+        "target_practice": "Backlog Refinement",
+        "association_type": "Dependency"
       }
     ]
   },
   {
     "name": "Daily Scrum",
+    "type": "Teamwork Practice",
     "objective": "Inspect progress toward the Sprint Goal and adapt the Sprint Backlog.",
-    "description": "A 15-minute time-boxed event for the Developers. The purpose is to synchronize activities and plan for the next 24 hours.  It is not a status report to management, but a coordination meeting to identify impediments and ensure the Sprint Goal is on track.",
-    "tags": [
+    "description": "A 15-minute time-boxed event for the Developers. The purpose is to synchronize activities and plan for the next 24 hours. It is not a status report to management, but a coordination meeting to identify impediments and ensure the Sprint Goal is on track.",
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Inspection",
       "Adaptation",
       "Self-Organization"
     ],
-    "parent_method": "Scrum",
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -139,41 +147,44 @@
         "responsibility": "Accountable"
       }
     ],
-    "benefits": [
-      "Improves communication.",
-      "Identifies impediments early.",
-      "Eliminates other meetings."
-    ],
-    "pitfalls": [
-      "Turning it into a status report for the Scrum Master.",
-      "Problem-solving during the 15 minutes (should be taken offline)."
-    ],
-    "resources": [],
     "metrics": [
       {
         "name": "Meeting Duration",
         "unit": "Minutes",
-        "formula": "$$End Time - Start Time$$"
+        "formula": "End Time - Start Time"
       }
     ],
+    "resources": {
+      "guidelines": [],
+      "pitfalls": [
+        "Turning it into a status report for the Scrum Master.",
+        "Problem-solving during the 15 minutes (should be taken offline)."
+      ],
+      "benefits": [
+        "Improves communication.",
+        "Identifies impediments early.",
+        "Eliminates other meetings."
+      ]
+    },
     "associated_practices": [
       {
-        "target_practice": "Visualize the Workflow",
-        "association_type": "Enabler"
+        "target_practice": "Visualize the Workflow (Kanban Board)",
+        "association_type": "Complementarity"
       }
     ]
   },
   {
     "name": "User Stories",
+    "type": "Requirements Practice",
     "objective": "Define requirements in small, client-valued functional increments.",
-    "description": "Work is divided into functional increments called 'user stories', following the '3 Cs' model: Card (physical token), Conversation (verbal discussion), and Confirmation (acceptance criteria).  They shift focus from writing documentation to talking about the requirement.",
-    "tags": [
+    "description": "Work is divided into functional increments called 'user stories', following the '3 Cs' model: Card (physical token), Conversation (verbal discussion), and Confirmation (acceptance criteria). They shift focus from writing documentation to talking about the requirement.",
+    "practice_goal": [
       "Communication",
       "Feedback",
       "Simplicity",
       "Active Stakeholder Participation"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -208,27 +219,29 @@
         "responsibility": "Consulted"
       }
     ],
-    "benefits": [
-      "Delivers vertical slices of value.",
-      "Mitigates risk of misunderstanding through conversation.",
-      "Encourages small batches."
-    ],
-    "pitfalls": [
-      "Creating 'technical stories' meant only for developers.",
-      "Treating the card as a detailed specification document."
-    ],
-    "resources": [
-      {
-        "name": "User Stories Applied",
-        "url": "http://www.amazon.com/User-Stories-Applied-Software-Development/dp/0321205685",
-        "type": "Book"
-      }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "User Stories Applied",
+          "url": "http://www.amazon.com/User-Stories-Applied-Software-Development/dp/0321205685",
+          "type": "Book"
+        }
+      ],
+      "pitfalls": [
+        "Creating 'technical stories' meant only for developers.",
+        "Treating the card as a detailed specification document."
+      ],
+      "benefits": [
+        "Delivers vertical slices of value.",
+        "Mitigates risk of misunderstanding through conversation.",
+        "Encourages small batches."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Story Mapping",
-        "association_type": "Organization"
+        "association_type": "Configuration"
       },
       {
         "target_practice": "Acceptance Test-Driven Development (ATDD)",
@@ -242,14 +255,15 @@
   },
   {
     "name": "Planning Poker",
+    "type": "Estimation Practice",
     "objective": "Collaboratively estimate work complexity using a relative scale to reach consensus.",
-    "description": "A consensus-based technique where teams assign relative effort values (often using the Fibonacci sequence: 1, 2, 3, 5, 8...) to work items.  Members reveal estimates simultaneously to avoid anchoring bias, followed by a discussion of outliers to build shared understanding.",
-    "tags": [
+    "description": "A consensus-based technique where teams assign relative effort values (often using the Fibonacci sequence: 1, 2, 3, 5, 8...) to work items. Members reveal estimates simultaneously to avoid anchoring bias, followed by a discussion of outliers to build shared understanding.",
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Feedback"
     ],
-    "parent_method": "Scrum",
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -289,36 +303,39 @@
         "responsibility": "Consulted"
       }
     ],
-    "benefits": [
-      "Reduces anchoring bias.",
-      "Surfaces hidden technical risks.",
-      "Builds team ownership of the plan."
-    ],
-    "pitfalls": [
-      "Equating points directly to hours.",
-      "Debating small differences (e.g., 3 vs 5) for too long."
-    ],
-    "resources": [],
     "metrics": [],
+    "resources": {
+      "guidelines": [],
+      "pitfalls": [
+        "Equating points directly to hours.",
+        "Debating small differences (e.g., 3 vs 5) for too long."
+      ],
+      "benefits": [
+        "Reduces anchoring bias.",
+        "Surfaces hidden technical risks.",
+        "Builds team ownership of the plan."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
-        "association_type": "Support"
+        "association_type": "Complementarity"
       }
     ]
   },
   {
     "name": "Test-Driven Development (TDD)",
+    "type": "Engineering Practice",
     "objective": "Ensure code is testable, covered by regression tests, and designed simply.",
-    "description": "A software engineering practice where tests are written before the production code. It follows the 'Red-Green-Refactor' cycle: Write a failing test (Red), write just enough code to pass it (Green), and optimize the code (Refactor). ",
-    "tags": [
+    "description": "A software engineering practice where tests are written before the production code. It follows the 'Red-Green-Refactor' cycle: Write a failing test (Red), write just enough code to pass it (Green), and optimize the code (Refactor).",
+    "practice_goal": [
       "TDD (test first)",
       "Simple Design",
       "Refactoring",
       "Feedback",
       "Continuous Integration"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -353,51 +370,53 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Drastically reduces defect rates.",
-      "Document code behavior via tests.",
-      "Enables fearless refactoring."
-    ],
-    "pitfalls": [
-      "Writing the test after the code.",
-      "Skipping the Refactor step (accumulating technical debt)."
-    ],
-    "resources": [
-      {
-        "name": "Test Driven Development: By Example",
-        "url": "https://www.amazon.com/Test-Driven-Development-By-Example/dp/0321146530",
-        "type": "Book"
-      }
-    ],
     "metrics": [
       {
         "name": "Code Coverage",
         "unit": "Percentage",
-        "formula": "$$\\frac{\\text{Lines of Code Executed by Tests}}{\\text{Total Lines of Code}} \\times 100$$"
+        "formula": "Lines of Code Executed by Tests / Total Lines of Code * 100"
       }
     ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Test Driven Development: By Example",
+          "url": "https://www.amazon.com/Test-Driven-Development-By-Example/dp/0321146530",
+          "type": "Book"
+        }
+      ],
+      "pitfalls": [
+        "Writing the test after the code.",
+        "Skipping the Refactor step (accumulating technical debt)."
+      ],
+      "benefits": [
+        "Drastically reduces defect rates.",
+        "Document code behavior via tests.",
+        "Enables fearless refactoring."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Refactoring",
-        "association_type": "Component"
+        "association_type": "Configuration"
       },
       {
         "target_practice": "Continuous Integration",
-        "association_type": "Foundation"
+        "association_type": "Dependency"
       }
     ]
   },
   {
     "name": "Acceptance Test-Driven Development (ATDD)",
+    "type": "Engineering Practice",
     "objective": "Collaborate to define completion criteria and write acceptance tests before implementation.",
-    "description": "This practice involves the 'Three Amigos' (Business, Development, QA) meeting before development begins to discuss requirements and derive acceptance tests. These tests often serve as the requirements themselves.  It ensures that the team solves the right problem.",
-    "tags": [
+    "description": "This practice involves the 'Three Amigos' (Business, Development, QA) meeting before development begins to discuss requirements and derive acceptance tests. These tests often serve as the requirements themselves. It ensures that the team solves the right problem.",
+    "practice_goal": [
       "Communication",
-      "Shared Understanding",
       "Feedback",
       "TDD (test first)"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -445,42 +464,47 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Eliminates ambiguity before coding starts.",
-      "Creates living documentation.",
-      "Reduces rework."
-    ],
-    "pitfalls": [
-      "Testing only the 'happy path'.",
-      "QA writing tests in isolation after development."
-    ],
-    "resources": [{
-      "name": "ATDD From the Trenches",
-      "url": "https://www.infoq.com/articles/atdd-from-the-trenches/",
-      "type": "website"
-    }],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "ATDD From the Trenches",
+          "url": "https://www.infoq.com/articles/atdd-from-the-trenches/",
+          "type": "website"
+        }
+      ],
+      "pitfalls": [
+        "Testing only the 'happy path'.",
+        "QA writing tests in isolation after development."
+      ],
+      "benefits": [
+        "Eliminates ambiguity before coding starts.",
+        "Creates living documentation.",
+        "Reduces rework."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "User Stories",
-        "association_type": "Input"
+        "association_type": "Dependency"
       },
       {
         "target_practice": "Test-Driven Development (TDD)",
-        "association_type": "Complementary"
+        "association_type": "Complementarity"
       }
     ]
   },
   {
     "name": "Visualize the Workflow (Kanban Board)",
+    "type": "Management Practice",
     "objective": "Make hidden work and bottlenecks immediately apparent.",
-    "description": "Teams create a visual model of their work process, typically on a Kanban Board. Columns represent different process states (e.g., Analysis, Development, Testing). This visualization supports transparency and makes bottlenecks visible.",
-    "tags": [
+    "description": "Teams create a visual model of their work process, typically on a Kanban Board. Columns represent different process states (e.g., Analysis, Development, Testing). This visualization supports transparency and makes bottlenecks visible. ",
+    "practice_goal": [
       "Transparency",
       "Communication",
       "Inspection"
     ],
-    "parent_method": "Kanban",
+    "method": "Kanban",
     "activities": [
       {
         "sequence": 1,
@@ -511,60 +535,59 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Highlights bottlenecks.",
-      "Prevents work from getting lost.",
-      "Democratizes status information."
-    ],
-    "pitfalls": [
-      "Board becoming a 'zombie' (not updated).",
-      "Visualizing the wishful process instead of the actual process."
-    ],
-    "resources": [
-      {
-        "name": "The Official Kanban Guide",
-        "url": "https://kanbanguides.org",
-        "type": "Guide"
-      }
-    ],
     "metrics": [
       {
         "name": "Throughput",
         "unit": "Items/Time Period",
-        "formula": "$$\\frac{\\text{Number of Completed Items}}{\\text{Time Period}}$$"
+        "formula": "Number of Completed Items / Time Period"
       },
       {
         "name": "Work In Progress (WIP)",
         "unit": "Items",
-        "formula": "$$\\text{Count of Items in 'In Progress' Columns}$$"
+        "formula": "Count of Items in 'In Progress' Columns"
       },
       {
         "name": "Lead Time",
         "unit": "Days",
-        "formula": "$$\\text{Date Completed} - \\text{Date Created}$$"
+        "formula": "Date Completed - Date Created"
       }
     ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "The Official Kanban Guide",
+          "url": "https://kanbanguides.org",
+          "type": "Guide"
+        }
+      ],
+      "pitfalls": [
+        "Board becoming a 'zombie' (not updated).",
+        "Visualizing the wishful process instead of the actual process."
+      ],
+      "benefits": [
+        "Highlights bottlenecks.",
+        "Prevents work from getting lost.",
+        "Democratizes status information."
+      ]
+    },
     "associated_practices": [
       {
-        "target_practice": "Limit WIP",
-        "association_type": "Complementary"
-      },
-      {
         "target_practice": "Daily Scrum",
-        "association_type": "Usage"
+        "association_type": "Complementarity"
       }
     ]
   },
   {
     "name": "Continuous Integration",
+    "type": "Engineering Practice",
     "objective": "Detect integration errors immediately by merging code frequently.",
-    "description": "Developers merge their code into a shared repository multiple times a day. Each merge triggers an automated build and test sequence.  This practice minimizes 'integration hell' and ensures the software is always in a releasable state.",
-    "tags": [
+    "description": "Developers merge their code into a shared repository multiple times a day. Each merge triggers an automated build and test sequence. This practice minimizes 'integration hell' and ensures the software is always in a releasable state.",
+    "practice_goal": [
       "Continuous Integration",
       "Feedback",
-      "Rapid Releases"
+      "Short Releases"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -599,23 +622,25 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Early bug detection.",
-      "Reduces complexity of merging.",
-      "Enables continuous delivery."
-    ],
-    "pitfalls": [
-      "Committing to a feature branch that lives for days.",
-      "Broken builds being ignored."
-    ],
-    "resources": [],
     "metrics": [
       {
         "name": "Build Repair Time",
         "unit": "Time",
-        "formula": "$$\\text{Time Build Fixed} - \\text{Time Build Broke}$$"
+        "formula": "Time Build Fixed - Time Build Broke"
       }
     ],
+    "resources": {
+      "guidelines": [],
+      "pitfalls": [
+        "Committing to a feature branch that lives for days.",
+        "Broken builds being ignored."
+      ],
+      "benefits": [
+        "Early bug detection.",
+        "Reduces complexity of merging.",
+        "Enables continuous delivery."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Test-Driven Development (TDD)",
@@ -629,15 +654,16 @@
   },
   {
     "name": "Pair Programming",
+    "type": "Teamwork Practice",
     "objective": "Enhance code quality and knowledge sharing by having two developers work on one machine.",
     "description": "Two developers work at one workstation. One, the 'driver,' writes code while the other, the 'navigator,' reviews each line as it is typed, considering the strategic direction. They switch roles frequently to maintain focus and energy.",
-    "tags": [
+    "practice_goal": [
       "Communication",
       "Feedback",
       "Collective Code Ownership",
       "Coding Standards"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -672,17 +698,19 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Real-time code review.",
-      "Rapid knowledge transfer.",
-      "Higher team resilience (less key-person risk)."
-    ],
-    "pitfalls": [
-      "Navigator checking their phone (disengagement).",
-      "Domination by the more senior developer."
-    ],
-    "resources": [],
     "metrics": [],
+    "resources": {
+      "guidelines": [],
+      "pitfalls": [
+        "Navigator checking their phone (disengagement).",
+        "Domination by the more senior developer."
+      ],
+      "benefits": [
+        "Real-time code review.",
+        "Rapid knowledge transfer.",
+        "Higher team resilience (less key-person risk)."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Mob Programming",
@@ -692,14 +720,15 @@
   },
   {
     "name": "Refactoring",
+    "type": "Engineering Practice",
     "objective": "Improve internal structure without changing external behavior.",
     "description": "The continuous improvement of the code's design to keep it clean, understandable, and maintainable. It prevents 'bit rot' and technical debt accumulation. It is distinct from rewriting; it involves small, safe transformations.",
-    "tags": [
+    "practice_goal": [
       "Refactoring",
       "Simplicity",
       "Simple Design"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -730,23 +759,25 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Reduces cost of future changes.",
-      "Improves readability.",
-      "Reduces bug density."
-    ],
-    "pitfalls": [
-      "Refactoring without test coverage.",
-      "Refactoring for days without delivering value (Gold Plating)."
-    ],
-    "resources": [
-      {
-        "name": "Refactoring.com",
-        "url": "https://refactoring.com/",
-        "type": "Wiki"
-      }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Refactoring.com",
+          "url": "https://refactoring.com/",
+          "type": "Wiki"
+        }
+      ],
+      "pitfalls": [
+        "Refactoring without test coverage.",
+        "Refactoring for days without delivering value (Gold Plating)."
+      ],
+      "benefits": [
+        "Reduces cost of future changes.",
+        "Improves readability.",
+        "Reduces bug density."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Test-Driven Development (TDD)",
@@ -760,14 +791,14 @@
   },
   {
     "name": "Definition of Done (DoD)",
+    "type": "Quality Practice",
     "objective": "Create a shared understanding of quality standards and eliminate ambiguity.",
     "description": "A comprehensive checklist of requirements (e.g., tested, reviewed, documented) that must be fulfilled before a user story or product increment can be considered complete. It acts as a quality gate ensuring the increment is potentially shippable.",
-    "tags": [
+    "practice_goal": [
       "Transparency",
-      "Quality",
       "Communication"
     ],
-    "parent_method": "Scrum",
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -798,29 +829,40 @@
         "responsibility": "Accountable"
       }
     ],
-    "benefits": [
-      "Prevents technical debt.",
-      "Ensures ship-ready quality.",
-      "Improves estimation accuracy."
-    ],
-    "pitfalls": [
-      "Making the DoD so stringent that nothing ever gets done.",
-      "Ignoring the DoD under pressure."
-    ],
-    "resources": [],
     "metrics": [],
+    "resources": {
+      "guidelines": [],
+      "pitfalls": [
+        "Making the DoD so stringent that nothing ever gets done.",
+        "Ignoring the DoD under pressure."
+      ],
+      "benefits": [
+        "Prevents technical debt.",
+        "Ensures ship-ready quality.",
+        "Improves estimation accuracy."
+      ]
+    },
     "associated_practices": [
+      {
+        "target_practice": "User Stories",
+        "association_type": "Dependency"
+      },
+      {
+        "target_practice": "Definition of Ready",
+        "association_type": "Complementarity"
+      }
     ]
   },
   {
     "name": "Weighted Shortest Job First (WSJF)",
+    "type": "Prioritization Practice",
     "objective": "Sequence work to maximize economic benefit.",
     "description": "A prioritization mechanism used to sequence jobs (features) to produce maximum economic benefit. It calculates a score by dividing the Cost of Delay (CoD) by the Job Duration (or size).",
-    "tags": [
+    "practice_goal": [
       "Adaptation",
       "Inspection"
     ],
-    "parent_method": "SAFe",
+    "method": "SAFe",
     "activities": [
       {
         "sequence": 1,
@@ -855,39 +897,42 @@
         "responsibility": "Consulted"
       }
     ],
-    "benefits": [
-      "Prioritizes high-value, short-duration work.",
-      "Removes emotion from prioritization."
-    ],
-    "pitfalls": [
-      "Spending too much time calculating precise numbers for CoD.",
-      "Gaming the size estimates to get a higher score."
-    ],
-    "resources": [],
     "metrics": [
       {
         "name": "WSJF Score",
         "unit": "Score",
-        "formula": "$$\\frac{\\text{Cost of Delay}}{\\text{Job Duration}}$$"
+        "formula": "Cost of Delay / Job Duration"
       }
     ],
+    "resources": {
+      "guidelines": [],
+      "pitfalls": [
+        "Spending too much time calculating precise numbers for CoD.",
+        "Gaming the size estimates to get a higher score."
+      ],
+      "benefits": [
+        "Prioritizes high-value, short-duration work.",
+        "Removes emotion from prioritization."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Planning Poker",
-        "association_type": "Input"
+        "association_type": "Dependency"
       }
     ]
   },
   {
     "name": "Story Mapping",
+    "type": "Product Discovery Practice",
     "objective": "Organize user stories to understand the whole product and user journey.",
-    "description": "A visualization technique that organizes user activities (the backbone) horizontally and breaks them down into details/stories vertically.  It helps teams understand the product narrative, identify gaps, and plan releases based on user flow rather than random features.",
-    "tags": [
+    "description": "A visualization technique that organizes user activities (the backbone) horizontally and breaks them down into details/stories vertically. It helps teams understand the product narrative, identify gaps, and plan releases based on user flow rather than random features. ",
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Inspection"
     ],
-    "parent_method": "User Centric Design",
+    "method": "User Centric Design",
     "activities": [
       {
         "sequence": 1,
@@ -922,23 +967,25 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Ensures completeness of user flows.",
-      "Facilitates release planning.",
-      "Builds shared understanding of the 'Big Picture'."
-    ],
-    "pitfalls": [
-      "Creating a map and never updating it.",
-      "Too much detail in the initial mapping."
-    ],
-    "resources": [
-      {
-        "name": "User Story Mapping",
-        "url": "https://www.jpattonassociates.com/user-story-mapping/",
-        "type": "Book"
-      }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "User Story Mapping",
+          "url": "https://www.jpattonassociates.com/user-story-mapping/",
+          "type": "Book"
+        }
+      ],
+      "pitfalls": [
+        "Creating a map and never updating it.",
+        "Too much detail in the initial mapping."
+      ],
+      "benefits": [
+        "Ensures completeness of user flows.",
+        "Facilitates release planning.",
+        "Builds shared understanding of the 'Big Picture'."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "User Stories",
@@ -948,14 +995,15 @@
   },
   {
     "name": "Lean Coffee",
+    "type": "Meeting Facilitation",
     "objective": "Collectively build and prioritize discussion agendas for structured meetings.",
     "description": "A structured, agenda-less meeting format where participants build the agenda democratically. Topics are generated on sticky notes, voted on, and discussed in strict time-boxed intervals (e.g., 5 mins + 2 mins extension).",
-    "tags": [
+    "practice_goal": [
       "Self-Organization",
       "Communication",
-      "Timeboxing"
+      "Sustainable Pace"
     ],
-    "parent_method": "Lean",
+    "method": "Lean",
     "activities": [
       {
         "sequence": 1,
@@ -990,23 +1038,25 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Ensures participants discuss what matters to them.",
-      "Prevents meetings from dragging on.",
-      "Democratizes the meeting structure."
-    ],
-    "pitfalls": [
-      "Using it for meetings that require a pre-set decision (e.g., architectural review).",
-      "Lack of facilitation leading to aimless chatting."
-    ],
-    "resources": [
-    {
-      "name": "Lean Coffee Guide",
-      "url": "https://leancoffee.org/",
-      "type": "Guide"
-    }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Lean Coffee Guide",
+          "url": "https://leancoffee.org/",
+          "type": "Guide"
+        }
+      ],
+      "pitfalls": [
+        "Using it for meetings that require a pre-set decision (e.g., architectural review).",
+        "Lack of facilitation leading to aimless chatting."
+      ],
+      "benefits": [
+        "Ensures participants discuss what matters to them.",
+        "Prevents meetings from dragging on.",
+        "Democratizes the meeting structure."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Overall Retrospective",
@@ -1016,15 +1066,15 @@
   },
   {
     "name": "Mob Programming",
+    "type": "Teamwork Practice",
     "objective": "The entire (or part of ) team works on the same task at the same time.",
-    "description": "An extension of Pair Programming where the whole team (3+ people) works on the same thing, at the same time, in the same space, and at the same computer.  It optimizes for flow efficiency over resource efficiency.",
-    "tags": [
+    "description": "An extension of Pair Programming where the whole team (3+ people) works on the same thing, at the same time, in the same space, and at the same computer. It optimizes for flow efficiency over resource efficiency.",
+    "practice_goal": [
       "Collective Code Ownership",
       "Communication",
-      "Collaboration",
       "TDD (test first)"
     ],
-    "parent_method": "Extreme Programming",
+    "method": "Extreme Programming",
     "activities": [
       {
         "sequence": 1,
@@ -1059,24 +1109,26 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Eliminates knowledge silos completely.",
-      "Reduce technical debt rapidly.",
-      "High quality code with few defects.",
-      "No need for separate code reviews."
-    ],
-    "pitfalls": [
-      "Passive team members tuning out.",
-      "Exhaustion (requires frequent breaks)."
-    ],
-    "resources": [
-      {
-        "name": "Mob Programming Guide",
-        "url": "https://agilealliance.org/glossary/mob-programming/",
-        "type": "Guide"
-      }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Mob Programming Guide",
+          "url": "https://agilealliance.org/glossary/mob-programming/",
+          "type": "Guide"
+        }
+      ],
+      "pitfalls": [
+        "Passive team members tuning out.",
+        "Exhaustion (requires frequent breaks)."
+      ],
+      "benefits": [
+        "Eliminates knowledge silos completely.",
+        "Reduce technical debt rapidly.",
+        "High quality code with few defects.",
+        "No need for separate code reviews."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Pair Programming",
@@ -1086,45 +1138,52 @@
   },
   {
     "name": "Value Stream Mapping",
+    "type": "Analysis Practice",
     "objective": "Visualize the end-to-end flow of work to identify and remove waste.",
-    "description": "A Lean management practice that maps the steps a product takes from request to delivery.  It specifically measures 'value-added time' versus 'wait time' to calculate flow efficiency.",
-    "tags": [
+    "description": "A Lean management practice that maps the steps a product takes from request to delivery. It specifically measures 'value-added time' versus 'wait time' to calculate flow efficiency and identifies value-creating and non-value-creating actions to eliminate waste. ",
+    "practice_goal": [
       "Inspection",
       "Transparency",
-      "Adaptation"
+      "Adaptation",
+      "Communication"
     ],
-    "parent_method": "Lean",
+    "method": "Lean",
     "activities": [
       {
         "sequence": 1,
-        "name": "Map Current State",
-        "description": "Document every step in the current process."
+        "name": "Select Product Family",
+        "description": "Identify the product family to map."
       },
       {
         "sequence": 2,
-        "name": "Measure",
-        "description": "Record process time and wait time for each step."
+        "name": "Create Current State Map",
+        "description": "Walk the flow and capture the actual condition of material and information flow (cycle times, inventory, etc.)."
       },
       {
         "sequence": 3,
-        "name": "Analyze",
-        "description": "Identify delays and non-value-added steps."
+        "name": "Create Future State Map",
+        "description": "Design the target condition using lean guidelines (Takt time, continuous flow, supermarkets)."
+      },
+      {
+        "sequence": 4,
+        "name": "Develop Implementation Plan",
+        "description": "Create a plan to move from current to future state."
       }
     ],
     "work_products": [
       {
         "name": "Current State Map",
-        "description": "Visualization of current inefficiencies."
+        "description": "Visual diagram of current flow and metrics."
       },
       {
         "name": "Future State Map",
-        "description": "Plan for optimized flow."
+        "description": "Visual diagram of desired flow."
       }
     ],
-    "completion_criteria": "Map is created and bottlenecks identified.",
+    "completion_criteria": "Future state map and implementation plan are agreed upon.",
     "roles": [
       {
-        "role": "Facilitator",
+        "role": "Value Stream Manager",
         "responsibility": "Accountable"
       },
       {
@@ -1132,45 +1191,67 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Data-driven process improvement.",
-      "Focuses on the whole system, not just local optimization."
-    ],
-    "pitfalls": [
-      "Mapping the 'official' process instead of reality.",
-      "Analysis paralysis (spending too long mapping)."
-    ],
-    "resources": [
-      {
-        "name": "Learning to See",
-        "url": "https://www.lean.org/lexicon-terms/value-stream-mapping/",
-        "type": "website"
-      }
-    ],
     "metrics": [
       {
         "name": "Flow Efficiency",
         "unit": "Percentage",
-        "formula": "$$\\frac{\\text{Value Added Time}}{\\text{Total Lead Time}} \\times 100$$"
+        "formula": "Value Added Time / Total Lead Time * 100"
+      },
+      {
+        "name": "Lead Time",
+        "unit": "Days/Hours",
+        "formula": "Total time from order to delivery"
+      },
+      {
+        "name": "Value Added Time",
+        "unit": "Minutes",
+        "formula": "Sum of cycle times"
       }
     ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Learning to See",
+          "url": "https://www.lean.org/lexicon-terms/value-stream-mapping/",
+          "type": "website"
+        }
+      ],
+      "pitfalls": [
+        "Mapping the 'official' process instead of reality.",
+        "Analysis paralysis (spending too long mapping).",
+        "Mapping without walking the gemba",
+        "Focusing only on material flow and ignoring information flow"
+      ],
+      "benefits": [
+        "Data-driven process improvement.",
+        "Focuses on the whole system, not just local optimization.",
+        "See the whole process",
+        "Identify sources of waste",
+        "Common language for process"
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Visualize the Workflow (Kanban Board)",
         "association_type": "Complementarity"
+      },
+      {
+        "target_practice": "Gemba Walk",
+        "association_type": "Dependency"
       }
     ]
   },
   {
     "name": "STATIK",
+    "type": "Kanban Practice",
     "objective": "Design a Kanban system tailored to the service's specific context.",
     "description": "Systems Thinking Approach To Introducing Kanban. It is a repeatable, humane way to get started with Kanban by analyzing sources of dissatisfaction, demand, and capabilities before designing the board.",
-    "tags": [
+    "practice_goal": [
       "Adaptation",
       "Inspection",
       "Simplicity"
     ],
-    "parent_method": "Kanban",
+    "method": "Kanban",
     "activities": [
       {
         "sequence": 1,
@@ -1186,8 +1267,7 @@
         "sequence": 3,
         "name": "Analyze Capability",
         "description": "Assess the team's ability to handle different work types."
-      }
-      ,
+      },
       {
         "sequence": 4,
         "name": "Model Workflow",
@@ -1197,8 +1277,7 @@
         "sequence": 5,
         "name": "Identify class of service",
         "description": "Set WIP limits and class of service."
-      }
-      ,
+      },
       {
         "sequence": 6,
         "name": "Design System",
@@ -1218,22 +1297,24 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Customizes Kanban to the specific team context.",
-      "Increases buy-in by addressing dissatisfactions."
-    ],
-    "pitfalls": [
-      "Designing the system in isolation without the team.",
-      "Copying another team's board without analysis."
-    ],
-    "resources": [
-      {
-        "name": "Kanban Guide - STATIK",
-        "url": "https://kanban.university/kanban-guide/#specific-practices",
-        "type": "Website"
-      }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Kanban Guide - STATIK",
+          "url": "https://kanban.university/kanban-guide/#specific-practices",
+          "type": "Website"
+        }
+      ],
+      "pitfalls": [
+        "Designing the system in isolation without the team.",
+        "Copying another team's board without analysis."
+      ],
+      "benefits": [
+        "Customizes Kanban to the specific team context.",
+        "Increases buy-in by addressing dissatisfactions."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Visualize the Workflow",
@@ -1243,14 +1324,15 @@
   },
   {
     "name": "Overall Retrospective",
+    "type": "Process Improvement",
     "objective": "Improve the organizational system in a multi-team context.",
     "description": "In large-scale environments (like LeSS), individual team retrospectives are insufficient. This practice brings representatives from multiple teams together to discuss systemic impediments that affect everyone.",
-    "tags": [
+    "practice_goal": [
       "Inspection",
       "Adaptation",
       "Cross-Functional Teams"
     ],
-    "parent_method": "LeSS",
+    "method": "LeSS",
     "activities": [
       {
         "sequence": 1,
@@ -1285,26 +1367,28 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Solves problems that individual teams cannot fix.",
-      "Improves organizational agility."
-    ],
-    "pitfalls": [
-      "Turning it into a complaint session without action.",
-      "Excluding management who have the power to change the system."
-    ],
-    "resources": [
-      {
-        "name": "Large Scale Scrum (LeSS) Guide",
-        "url": "https://less.works/less/framework/overall-retrospective",
-        "type": "Guide"
-      }
-    ],
     "metrics": [],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Large Scale Scrum (LeSS) Guide",
+          "url": "https://less.works/less/framework/overall-retrospective",
+          "type": "Guide"
+        }
+      ],
+      "pitfalls": [
+        "Turning it into a complaint session without action.",
+        "Excluding management who have the power to change the system."
+      ],
+      "benefits": [
+        "Solves problems that individual teams cannot fix.",
+        "Improves organizational agility."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
-        "association_type": "Input"
+        "association_type": "Dependency"
       }
     ]
   },
@@ -1313,8 +1397,7 @@
     "type": "Process Improvement",
     "objective": "Inspect the past Sprint and plan for improvements",
     "description": "The Sprint Retrospective is held at the end of the Sprint to plan ways to increase quality and effectiveness. The Scrum Team inspects how the last Sprint went with regards to individuals, interactions, processes, tools, and their Definition of Done. Elements that went well and problems encountered are discussed, and the most helpful changes to improve the team's effectiveness are identified and planned for the next Sprint.",
-    "method": "Scrum",
-    "tags": [
+    "practice_goal": [
       "Inspection",
       "Adaptation",
       "Communication",
@@ -1323,6 +1406,7 @@
       "Self-Organization",
       "Continuous Integration"
     ],
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -1367,30 +1451,6 @@
         "responsibility": "Responsible"
       }
     ],
-    "benefits": [
-      "Regularly enhances team effectiveness and product quality.",
-      "Provides a space to resolve interpersonal and process issues."
-    ],
-    "pitfalls": [
-      "Focusing on who is at fault rather than process improvement.",
-      "Discussing problems without committing to concrete solutions.",
-      "Skipping the Event",
-      "Treating the retrospective as optional when under pressure."
-    ],
-    "resources": {
-      "guidelines": [
-        {
-          "name": "The Scrum Guide",
-          "type": "Wiki",
-          "url": "https://scrumguides.org/scrum-guide.html"
-        },
-        {
-          "name": "Scrum and XP from the Trenches",
-          "type": "book",
-          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/"
-        }
-      ]
-    },
     "metrics": [
       {
         "name": "Improvement Action Completion Rate",
@@ -1398,6 +1458,30 @@
         "formula": "(Completed Actions / Planned Actions) * 100"
       }
     ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "The Scrum Guide",
+          "url": "https://scrumguides.org/scrum-guide.html",
+          "type": "Wiki"
+        },
+        {
+          "name": "Scrum and XP from the Trenches",
+          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/",
+          "type": "book"
+        }
+      ],
+      "pitfalls": [
+        "Focusing on who is at fault rather than process improvement.",
+        "Discussing problems without committing to concrete solutions.",
+        "Skipping the Event",
+        "Treating the retrospective as optional when under pressure."
+      ],
+      "benefits": [
+        "Regularly enhances team effectiveness and product quality.",
+        "Provides a space to resolve interpersonal and process issues."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Daily Stand-up",
@@ -1414,8 +1498,7 @@
     "type": "Inspection Practice",
     "objective": "Inspect the outcome of the Sprint and determine future adaptations",
     "description": "The Sprint Review is held at the end of the Sprint to inspect the Increment and adapt the Product Backlog. The Scrum Team presents the results of their work to key stakeholders and progress toward the Product Goal is discussed. It is a working session where the Scrum Team and stakeholders collaborate on what to do next based on the inspection of the increment and changes in the environment.",
-    "method": "Scrum",
-    "tags": [
+    "practice_goal": [
       "Inspection",
       "Adaptation",
       "Feedback",
@@ -1423,6 +1506,7 @@
       "Active Stakeholder Participation",
       "Communication"
     ],
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -1479,30 +1563,6 @@
         "responsibility": "Consulted"
       }
     ],
-    "benefits": [
-       "Direct input from users and stakeholders on the product direction.",
-       "Ensures the Product Backlog remains relevant to current business needs.",
-        "Fosters collaboration between the Scrum Team and stakeholders."
-    ],
-    "pitfalls": [
-      "Presenting slides instead of working software.",
-      "Holding the review without the people who provide feedback.",
-      "Treating the event as a sign-off meeting rather than a collaborative working session."
-    ],
-    "resources": {
-      "guidelines": [
-        {
-          "name": "The Scrum Guide",
-          "type": "Wiki",
-          "url": "https://scrumguides.org/scrum-guide.html"
-        },
-        {
-          "name": "Scrum and XP from the Trenches",
-          "type": "book",
-          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/"
-        }
-      ]
-    },
     "metrics": [
       {
         "name": "Stakeholder Feedback Count",
@@ -1515,6 +1575,30 @@
         "formula": "Sum(Points of Done Items)"
       }
     ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "The Scrum Guide",
+          "url": "https://scrumguides.org/scrum-guide.html",
+          "type": "Wiki"
+        },
+        {
+          "name": "Scrum and XP from the Trenches",
+          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/",
+          "type": "book"
+        }
+      ],
+      "pitfalls": [
+        "Presenting slides instead of working software.",
+        "Holding the review without the people who provide feedback.",
+        "Treating the event as a sign-off meeting rather than a collaborative working session."
+      ],
+      "benefits": [
+        "Direct input from users and stakeholders on the product direction.",
+        "Ensures the Product Backlog remains relevant to current business needs.",
+        "Fosters collaboration between the Scrum Team and stakeholders."
+      ]
+    },
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
@@ -1527,227 +1611,228 @@
     ]
   },
   {
-  "name": "Backlog Refinement",
-  "type": "Planning Practice",
-  "objective": "Break down and further define Product Backlog items into smaller more precise items",
-  "description": "Product Backlog refinement is the act of breaking down and further defining Product Backlog items into smaller more precise items. This is an ongoing activity to add details, such as a description, order, and size. Attributes often vary with the domain of work. The Developers who will be doing the work are responsible for the sizing. The Product Owner may influence the Developers by helping them understand and select trade-offs.",
-  "method": "Scrum",
-  "activities": [
-    {
-      "sequence": 1,
-      "name": "Review and Clarify",
-      "description": "The Product Owner and Developers review high-priority backlog items to ensure a shared understanding of the scope and intent."
-    },
-    {
-      "sequence": 2,
-      "name": "Decomposition",
-      "description": "Large items are broken down into smaller, more manageable items that can be completed within a single Sprint."
-    },
-    {
-      "sequence": 3,
-      "name": "Estimation",
-      "description": "Developers provide an estimate of the effort or size required for the items, often using techniques like Planning Poker."
-    },
-    {
-      "sequence": 4,
-      "name": "Ordering",
-      "description": "The Product Owner re-orders the Product Backlog based on new insights, value, and estimates."
-    }
-  ],
-  "tags": [
-    "Transparency",
-    "Inspection",
-    "Adaptation",
-    "Communication",
-    "Simplicity"
-  ],
-  "roles": [
-    {
-      "role": "Product Owner",
-      "responsibility": "Accountable"
-    },
-    {
-      "role": "Developer",
-      "responsibility": "Responsible"
-    },
-    {
-      "role": "Scrum Master",
-      "responsibility": "Consulted"
-    }
-  ],
-  "work_products": [
-    {
-      "name": "Product Backlog",
-      "description": "An emergent, ordered list of what is needed to improve the product."
-    }
-  ],
-  "completion_criteria": "Backlog items are deemed 'Ready' for selection in a Sprint Planning event (e.g., they are clear, feasible, and testable).",
-  "metrics": [
-    {
-      "name": "Ready Backlog Depth",
-      "unit": "Sprints",
-      "formula": "Sum(Size of Ready Items) / Average Velocity"
-    }
-  ],
-  "resources": {
-    "guidelines": [
+    "name": "Backlog Refinement",
+    "type": "Planning Practice",
+    "objective": "Break down and further define Product Backlog items into smaller more precise items",
+    "description": "Product Backlog refinement is the act of breaking down and further defining Product Backlog items into smaller more precise items. This is an ongoing activity to add details, such as a description, order, and size. Attributes often vary with the domain of work. The Developers who will be doing the work are responsible for the sizing. The Product Owner may influence the Developers by helping them understand and select trade-offs.",
+    "practice_goal": [
+      "Transparency",
+      "Inspection",
+      "Adaptation",
+      "Communication",
+      "Simplicity"
+    ],
+    "method": "Scrum",
+    "activities": [
       {
-        "name": "The Scrum Guide",
-        "type": "Wiki",
-        "url": "https://scrumguides.org"
+        "sequence": 1,
+        "name": "Review and Clarify",
+        "description": "The Product Owner and Developers review high-priority backlog items to ensure a shared understanding of the scope and intent."
       },
       {
-        "name": "Scrum and XP from the Trenches",
-        "type": "book",
-        "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/"
+        "sequence": 2,
+        "name": "Decomposition",
+        "description": "Large items are broken down into smaller, more manageable items that can be completed within a single Sprint."
+      },
+      {
+        "sequence": 3,
+        "name": "Estimation",
+        "description": "Developers provide an estimate of the effort or size required for the items, often using techniques like Planning Poker."
+      },
+      {
+        "sequence": 4,
+        "name": "Ordering",
+        "description": "The Product Owner re-orders the Product Backlog based on new insights, value, and estimates."
       }
     ],
-    "pitfalls": [ "Wasting effort on items that may change or be discarded before they are needed.",
-      "The Product Owner refining in isolation, leading to lack of technical feasibility or buy-in."
-    ],
-    "benefits": [ "Reduces the time required for Sprint Planning by ensuring items are already understood.",
-       "Identifies dependencies and unknowns early, before the Sprint begins."
-    ]
-  },
-  "associated_practices": [
-    {
-      "target_practice_name": "Sprint Planning",
-      "association_type": "Dependency"
-    },
-    {
-      "target_practice_name": "Planning Poker",
-      "association_type": "Complementarity"
-    },
-    {
-      "target_practice_name": "User Stories",
-      "association_type": "Complementarity"
-    }
-  ]
-},
-{
-  "name": "Swarming",
-  "type": "Teamwork Practice",
-  "objective": "Maximize flow and reduce cycle time by focusing collective team effort on finishing one item before starting another",
-  "description": "Swarming is a collaborative technique where multiple team members with different skills focus their efforts on a single work item (such as a user story or support ticket) simultaneously to complete it as quickly as possible. Rather than working in silos or handing off tasks sequentially (e.g., from developer to tester), the team works in parallel or together to solve the problem. This approach minimizes 'Work in Progress' (WIP), improves flow, ensures shared understanding, and reduces the time it takes to deliver value.",
-  "method": "Scrum",
-  "tags": [
-    "Communication",
-    "Feedback",
-    "Collective Code Ownership",
-    "Cross-Functional Teams",
-    "Transparency",
-    "Sustainable Pace",
-    "Self-Organization"
-  ],
-  "activities": [
-    {
-      "sequence": 1,
-      "name": "Identify Priority",
-      "description": "Select the critical user story or issue that requires immediate attention, often one that is blocked or closest to completion."
-    },
-    {
-      "sequence": 2,
-      "name": "Form Swarm",
-      "description": "Identify all team members capable of contributing to the item (e.g., Developer, Tester, Designer)."
-    },
-    {
-      "sequence": 3,
-      "name": "Agree on Approach",
-      "description": "The group decides how to attack the work simultaneously (e.g., breaking down tasks to work in parallel or pairing/mobbing on a single screen)."
-    },
-    {
-      "sequence": 4,
-      "name": "Execute and Integrate",
-      "description": "Team members work collaboratively in real-time to complete tasks, review code, and test immediately."
-    }
-  ],
-  "work_products": [
-    {
-      "name": "User Story",
-      "description": "The functional increment being worked on by the swarm."
-    },
-    {
-      "name": "Support Ticket",
-      "description": "The issue or incident being resolved (in IT support contexts)."
-    },
-    {
-      "name": "Test Cases",
-      "description": "Tests created and executed during the swarming process."
-    },
-    {
-      "name": "Production Code",
-      "description": "Code developed, reviewed, and integrated during the swarming session."
-    }
-  ],
-  "completion_criteria": "The User Story is 100% Done or the Issue is fully resolved with no remaining tasks.",
-  "roles": [
-    {
-      "role": "Developer",
-      "responsibility": "Responsible"
-    }
-  ],
-  "benefits": [
-    "Broader team understanding of the system",
-    "Real-time code review and quality assurance",
-    "Reduction of knowledge silos",
-    "Faster resolution times (lower Cycle Time)",
-    "Higher customer satisfaction",
-    "Increased employee empowerment and skill development"
-  ],
-  "pitfalls": [
-    "High Work In Progress (WIP) if swarming is neglected",
-    "Team members struggling with autonomy initially",
-    "Focusing on individual efficiency metrics instead of flow",
-    "Lack of clear communication channels leading to confusion"
-  ],
-  "metrics": [
-    {
-      "name": "Cycle Time",
-      "unit": "Hours/Days",
-      "formula": "Time Finished - Time Started"
-    },
-    {
-      "name": "Customer Satisfaction Score",
-      "unit": "Score",
-      "formula": "Average of Customer Ratings"
-    }
-  ],
-  "resources": {
-    "guidelines": [
+    "work_products": [
       {
-        "name": "Swarming: A Team-Based Approach to Getting Work Done",
-        "url": "https://medium.com/agile-outside-the-box/swarming-a-team-based-approach-to-getting-work-done-1434243f38b8",
-        "type": "Blog Post"
+        "name": "Product Backlog",
+        "description": "An emergent, ordered list of what is needed to improve the product."
+      }
+    ],
+    "completion_criteria": "Backlog items are deemed 'Ready' for selection in a Sprint Planning event (e.g., they are clear, feasible, and testable).",
+    "roles": [
+      {
+        "role": "Product Owner",
+        "responsibility": "Accountable"
       },
       {
-        "name": "What is Swarming?",
-        "url": "https://www.topdesk.com/en/blog/what-is-swarming",
-        "type": "Blog Post"
+        "role": "Developer",
+        "responsibility": "Responsible"
+      },
+      {
+        "role": "Scrum Master",
+        "responsibility": "Consulted"
+      }
+    ],
+    "metrics": [
+      {
+        "name": "Ready Backlog Depth",
+        "unit": "Sprints",
+        "formula": "Sum(Size of Ready Items) / Average Velocity"
+      }
+    ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "The Scrum Guide",
+          "url": "https://scrumguides.org",
+          "type": "Wiki"
+        },
+        {
+          "name": "Scrum and XP from the Trenches",
+          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/",
+          "type": "book"
+        }
+      ],
+      "pitfalls": [
+        "Wasting effort on items that may change or be discarded before they are needed.",
+        "The Product Owner refining in isolation, leading to lack of technical feasibility or buy-in."
+      ],
+      "benefits": [
+        "Reduces the time required for Sprint Planning by ensuring items are already understood.",
+        "Identifies dependencies and unknowns early, before the Sprint begins."
+      ]
+    },
+    "associated_practices": [
+      {
+        "target_practice": "Sprint Planning",
+        "association_type": "Dependency"
+      },
+      {
+        "target_practice": "Planning Poker",
+        "association_type": "Complementarity"
+      },
+      {
+        "target_practice": "User Stories",
+        "association_type": "Complementarity"
       }
     ]
   },
-  "associated_practices": [
-    {
-      "target_practice": "Mob Programming",
-      "association_type": "Complementarity"
+  {
+    "name": "Swarming",
+    "type": "Teamwork Practice",
+    "objective": "Maximize flow and reduce cycle time by focusing collective team effort on finishing one item before starting another",
+    "description": "Swarming is a collaborative technique where multiple team members with different skills focus their efforts on a single work item (such as a user story or support ticket) simultaneously to complete it as quickly as possible. Rather than working in silos or handing off tasks sequentially (e.g., from developer to tester), the team works in parallel or together to solve the problem. This approach minimizes 'Work in Progress' (WIP), improves flow, ensures shared understanding, and reduces the time it takes to deliver value.",
+    "practice_goal": [
+      "Communication",
+      "Feedback",
+      "Collective Code Ownership",
+      "Cross-Functional Teams",
+      "Transparency",
+      "Sustainable Pace",
+      "Self-Organization"
+    ],
+    "method": "Scrum",
+    "activities": [
+      {
+        "sequence": 1,
+        "name": "Identify Priority",
+        "description": "Select the critical user story or issue that requires immediate attention, often one that is blocked or closest to completion."
+      },
+      {
+        "sequence": 2,
+        "name": "Form Swarm",
+        "description": "Identify all team members capable of contributing to the item (e.g., Developer, Tester, Designer)."
+      },
+      {
+        "sequence": 3,
+        "name": "Agree on Approach",
+        "description": "The group decides how to attack the work simultaneously (e.g., breaking down tasks to work in parallel or pairing/mobbing on a single screen)."
+      },
+      {
+        "sequence": 4,
+        "name": "Execute and Integrate",
+        "description": "Team members work collaboratively in real-time to complete tasks, review code, and test immediately."
+      }
+    ],
+    "work_products": [
+      {
+        "name": "User Story",
+        "description": "The functional increment being worked on by the swarm."
+      },
+      {
+        "name": "Support Ticket",
+        "description": "The issue or incident being resolved (in IT support contexts)."
+      },
+      {
+        "name": "Test Cases",
+        "description": "Tests created and executed during the swarming process."
+      },
+      {
+        "name": "Production Code",
+        "description": "Code developed, reviewed, and integrated during the swarming session."
+      }
+    ],
+    "completion_criteria": "The User Story is 100% Done or the Issue is fully resolved with no remaining tasks.",
+    "roles": [
+      {
+        "role": "Developer",
+        "responsibility": "Responsible"
+      }
+    ],
+    "metrics": [
+      {
+        "name": "Cycle Time",
+        "unit": "Hours/Days",
+        "formula": "Time Finished - Time Started"
+      },
+      {
+        "name": "Customer Satisfaction Score",
+        "unit": "Score",
+        "formula": "Average of Customer Ratings"
+      }
+    ],
+    "resources": {
+      "guidelines": [
+        {
+          "name": "Swarming: A Team-Based Approach to Getting Work Done",
+          "url": "https://medium.com/agile-outside-the-box/swarming-a-team-based-approach-to-getting-work-done-1434243f38b8",
+          "type": "Blog Post"
+        },
+        {
+          "name": "What is Swarming?",
+          "url": "https://www.topdesk.com/en/blog/what-is-swarming",
+          "type": "Blog Post"
+        }
+      ],
+      "pitfalls": [
+        "High Work In Progress (WIP) if swarming is neglected",
+        "Team members struggling with autonomy initially",
+        "Focusing on individual efficiency metrics instead of flow",
+        "Lack of clear communication channels leading to confusion"
+      ],
+      "benefits": [
+        "Broader team understanding of the system",
+        "Real-time code review and quality assurance",
+        "Reduction of knowledge silos",
+        "Faster resolution times (lower Cycle Time)",
+        "Higher customer satisfaction",
+        "Increased employee empowerment and skill development"
+      ]
     },
-    {
-      "target_practice": "Pair Programming",
-      "association_type": "Complementarity"
-    },
-    {
-      "target_practice": "Daily Stand-up",
-      "association_type": "Dependency"
-    }
-  ]
-},
-{
+    "associated_practices": [
+      {
+        "target_practice": "Mob Programming",
+        "association_type": "Complementarity"
+      },
+      {
+        "target_practice": "Pair Programming",
+        "association_type": "Complementarity"
+      },
+      {
+        "target_practice": "Daily Stand-up",
+        "association_type": "Dependency"
+      }
+    ]
+  },
+  {
     "name": "Example Mapping",
     "type": "Discovery Practice",
     "objective": "Clarify and confirm acceptance criteria through a structured conversation using concrete examples.",
     "description": "Example Mapping is a simple, low-tech method for keeping story discovery conversations short and productive. It involves a group (typically the 'Three Amigos') using a pack of 4-colored index cards to capture different types of information (Story, Rules, Examples, Questions) as the conversation unfolds. This visual representation helps tease apart rules, identify core behaviors, and defer complexity, ensuring a shared understanding of what it takes for a story to be 'done' before development begins.",
-    "method": "BDD",
-    "tags": [
+    "practice_goal": [
       "Communication",
       "Feedback",
       "Transparency",
@@ -1755,6 +1840,7 @@
       "Active Stakeholder Participation",
       "Simple Design"
     ],
+    "method": "BDD",
     "activities": [
       {
         "sequence": 1,
@@ -1787,6 +1873,21 @@
         "description": "Conduct a quick thumb-vote after the timebox (e.g., 25 minutes) to decide if the story is ready for development."
       }
     ],
+    "work_products": [
+      {
+        "name": "Example Map",
+        "description": "A visual arrangement of colored cards (Story, Rules, Examples, Questions) representing the shared understanding."
+      },
+      {
+        "name": "Refined User Story",
+        "description": "A story that has been clarified, potentially sliced, or confirmed as ready for development."
+      },
+      {
+        "name": "List of Questions",
+        "description": "Captured unknowns (red cards) requiring further research (known unknowns)."
+      }
+    ],
+    "completion_criteria": "The group is satisfied that the scope of the story is clear, or the 25-minute timebox has expired.",
     "roles": [
       {
         "role": "Product Person",
@@ -1805,21 +1906,6 @@
         "responsibility": "Consulted"
       }
     ],
-    "work_products": [
-      {
-        "name": "Example Map",
-        "description": "A visual arrangement of colored cards (Story, Rules, Examples, Questions) representing the shared understanding."
-      },
-      {
-        "name": "Refined User Story",
-        "description": "A story that has been clarified, potentially sliced, or confirmed as ready for development."
-      },
-      {
-        "name": "List of Questions",
-        "description": "Captured unknowns (red cards) requiring further research (known unknowns)."
-      }
-    ],
-    "completion_criteria": "The group is satisfied that the scope of the story is clear, or the 25-minute timebox has expired.",
     "metrics": [
       {
         "name": "Session Duration",
@@ -1836,8 +1922,8 @@
       "guidelines": [
         {
           "name": "Introducing Example Mapping",
-          "type": "Blog Post",
-          "url": "https://cucumber.io/blog/bdd/example-mapping-introduction/"
+          "url": "https://cucumber.io/blog/bdd/example-mapping-introduction/",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -1873,13 +1959,13 @@
     "name": "Impact Mapping",
     "type": "Product Management Practice",
     "objective": "To create a visual hierarchy connecting business goals to specific features, ensuring value delivery.",
-    "description": "Impact Mapping is a planning technique that creates a visual hierarchy from Goal to Actors (who can help/hinder), to Impacts (behavior changes), to Deliverables (features). It ensures every feature serves a business goal.",
-    "method": null,
-    "tag": [
+    "description": "Impact Mapping is a planning technique that creates a visual hierarchy from Goal to Actors (who can help/hinder), to Impacts (behavior changes), to Deliverables (features). It ensures every feature serves a business goal. ",
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Active Stakeholder Participation"
     ],
+    "method": "User Centric Design",
     "activities": [
       {
         "sequence": 1,
@@ -1908,6 +1994,7 @@
         "description": "A visual hierarchy from Goal to Actors to Impacts to Deliverables."
       }
     ],
+    "completion_criteria": "Map connects goals to deliverables.",
     "roles": [
       {
         "role": "Product Owner",
@@ -1922,14 +2009,6 @@
         "responsibility": "Consulted"
       }
     ],
-    "benefits": [
-      "Ensures every feature serves a business goa.",
-      "Drives alignmen."
-    ],
-    "pitfalls": [
-      "Focusing on deliverables instead of impacts.",
-      "Creating a static map that is not updated."
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
@@ -1943,15 +2022,23 @@
           "url": "https://www.nextapp.co/blog/impact-mapping",
           "type": "Blog Post"
         }
+      ],
+      "pitfalls": [
+        "Focusing on deliverables instead of impacts.",
+        "Creating a static map that is not updated."
+      ],
+      "benefits": [
+        "Ensures every feature serves a business goa.",
+        "Drives alignmen."
       ]
     },
     "associated_practices": [
       {
-        "target_practice_name": "User Story Mapping",
+        "target_practice": "User Story Mapping",
         "association_type": "Complementarity"
       },
       {
-        "target_practice_name": "Opportunity Solution Trees",
+        "target_practice": "Opportunity Solution Trees",
         "association_type": "Complementarity"
       }
     ]
@@ -1961,8 +2048,7 @@
     "type": "Product Discovery Practice",
     "objective": "Visualize discovery to stay aligned and drive outcomes",
     "description": "Opportunity solution trees are a visual representation of the paths a team might take to reach a desired outcome. The tree starts with a desired outcome at the root, branches into the opportunity space (customer needs, pain points, desires), then into the solution space, and finally into assumption tests to evaluate those solutions. This structure helps teams resolve the tension between business and customer needs and build a shared understanding.",
-    "method": null,
-    "tags": [
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Feedback",
@@ -1970,6 +2056,7 @@
       "Adaptation",
       "Active Stakeholder Participation"
     ],
+    "method": "Product Thinking",
     "activities": [
       {
         "sequence": 1,
@@ -2017,6 +2104,21 @@
         "description": "Use test data to decide whether to throw ideas away, refine them, or pivot to a new opportunity."
       }
     ],
+    "work_products": [
+      {
+        "name": "Opportunity Solution Tree",
+        "description": "A visual diagram connecting the desired outcome to opportunities, solutions, and assumption tests"
+      },
+      {
+        "name": "Experience Map",
+        "description": "A visual map of the customer's experience used to structure the opportunity space"
+      },
+      {
+        "name": "Assumption Tests",
+        "description": "Experiments designed to validate or invalidate the risks associated with potential solutions"
+      }
+    ],
+    "completion_criteria": "The team has evaluated solutions based on assumption test data and decided on the next step (iterate, pivot, or deliver).",
     "roles": [
       {
         "role": "Product Manager",
@@ -2035,21 +2137,6 @@
         "responsibility": "Informed"
       }
     ],
-    "work_products": [
-      {
-        "name": "Opportunity Solution Tree",
-        "description": "A visual diagram connecting the desired outcome to opportunities, solutions, and assumption tests"
-      },
-      {
-        "name": "Experience Map",
-        "description": "A visual map of the customer's experience used to structure the opportunity space"
-      },
-      {
-        "name": "Assumption Tests",
-        "description": "Experiments designed to validate or invalidate the risks associated with potential solutions"
-      }
-    ],
-    "completion_criteria": "The team has evaluated solutions based on assumption test data and decided on the next step (iterate, pivot, or deliver).",
     "metrics": [
       {
         "name": "Business Outcome",
@@ -2071,8 +2158,8 @@
       "guidelines": [
         {
           "name": "Opportunity Solution Trees: Visualize Your Discovery to Stay Aligned and Drive Outcomes",
-          "type": "Blog Post",
-          "url": "https://www.producttalk.org/opportunity-solution-trees/"
+          "url": "https://www.producttalk.org/opportunity-solution-trees/",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2106,13 +2193,13 @@
     "type": "Planning Practice",
     "objective": "Ensure backlog items are actionable, clear, and feasible before work begins",
     "description": "The Definition of Ready (DoR) is a working agreement and a set of criteria that a Product Backlog Item must meet before it can be selected for a Sprint. It acts as a gateway or checklist to ensure that work is sufficiently defined, free of external dependencies, and properly estimated, preventing the team from committing to ambiguous or unfeasible work. This practice facilitates the transition of work from the Product Backlog to the development stage.",
-    "method": "Scrum",
-    "practice_goals": [
+    "practice_goal": [
       "Communication",
       "Transparency",
       "Sustainable Pace",
       "Simplicity"
     ],
+    "method": "Scrum",
     "activities": [
       {
         "sequence": 1,
@@ -2162,31 +2249,17 @@
         "formula": "(Items meeting DoR / Total Items selected for Sprint) * 100"
       }
     ],
-    "associated_practices": [
-      {
-        "target_practice_name": "Definition of Done",
-        "association_type": "Complementarity"
-      },
-      {
-        "target_practice_name": "Backlog Refinement",
-        "association_type": "Dependency"
-      },
-      {
-        "target_practice_name": "INVEST",
-        "association_type": "Configuration"
-      }
-    ],
     "resources": {
       "guidelines": [
         {
           "name": "What is Definition of Ready | Atlassian",
-          "type": "Blog Post",
-          "url": "https://www.atlassian.com/agile/project-management/definition-of-ready"
+          "url": "https://www.atlassian.com/agile/project-management/definition-of-ready",
+          "type": "Blog Post"
         },
         {
           "name": "Scrum and XP from the Trenches",
-          "type": "book",
-          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/"
+          "url": "https://www.infoq.com/minibooks/scrum-xp-from-the-trenches/",
+          "type": "book"
         }
       ],
       "pitfalls": [
@@ -2200,14 +2273,33 @@
         "Ensures backlog items are actionable and feasible",
         "Enhances sprint planning efficiency"
       ]
-    }
+    },
+    "associated_practices": [
+      {
+        "target_practice": "Definition of Done",
+        "association_type": "Complementarity"
+      },
+      {
+        "target_practice": "Backlog Refinement",
+        "association_type": "Dependency"
+      },
+      {
+        "target_practice": "INVEST",
+        "association_type": "Configuration"
+      }
+    ]
   },
   {
     "name": "Timeline Roadmap",
     "type": "Planning Practice",
     "objective": "Visualize strategic direction and major work phases",
     "description": "A strategic planning tool that visualizes project initiatives, deliverables, and milestones along a chronological timeline. Unlike detailed Gantt charts, it provides a high-level view to communicate direction and priorities to stakeholders. It uses flexible time periods (months, quarters) and swim lanes for workstreams.",
-    "method": "",
+    "practice_goal": [
+      "Transparency",
+      "Communication",
+      "Active Stakeholder Participation"
+    ],
+    "method": "Product Management",
     "activities": [
       {
         "sequence": 1,
@@ -2235,6 +2327,13 @@
         "description": "Agree on review frequency and ownership"
       }
     ],
+    "work_products": [
+      {
+        "name": "Roadmap",
+        "description": "Visual timeline of initiatives and milestones"
+      }
+    ],
+    "completion_criteria": "Roadmap visualized and agreed upon.",
     "roles": [
       {
         "role": "Product Owner",
@@ -2245,19 +2344,13 @@
         "responsibility": "Responsible"
       }
     ],
-    "work_products": [
-      {
-        "name": "Roadmap",
-        "description": "Visual timeline of initiatives and milestones"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "Timeline Roadmap Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/timeline-roadmap-planning-template"
+          "url": "https://ludi.co/templates/timeline-roadmap-planning-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2269,11 +2362,6 @@
         "Communicates strategic initiatives to stakeholders "
       ]
     },
-    "practice_goal": [
-      "Transparency",
-      "Communication",
-      "Active Stakeholder Participation"
-    ],
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
@@ -2289,8 +2377,12 @@
     "name": "T-Shirt Estimation",
     "type": "Estimation Practice",
     "objective": "Quickly categorize work based on relative effort",
-    "description": "A relative sizing method where teams classify tasks using clothing sizes (XS, S, M, L, XL) instead of specific time units. It focuses on relative scope and complexity rather than precise time estimates, making it useful for early planning and backlog sizing .",
-    "method": "",
+    "description": "A relative sizing method where teams classify tasks using clothing sizes (XS, S, M, L, XL) instead of specific time units. It focuses on relative scope and complexity rather than precise time estimates, making it useful for early planning and backlog sizing.",
+    "practice_goal": [
+      "Simplicity",
+      "Communication"
+    ],
+    "method": "Agile",
     "activities": [
       {
         "sequence": 1,
@@ -2313,6 +2405,13 @@
         "description": "Check distribution and break down 'Too Big' items"
       }
     ],
+    "work_products": [
+      {
+        "name": "Sized Backlog",
+        "description": "List of work items with relative size estimates"
+      }
+    ],
+    "completion_criteria": "Backlog items have size estimates.",
     "roles": [
       {
         "role": "Development Team",
@@ -2323,19 +2422,13 @@
         "responsibility": "Consulted"
       }
     ],
-    "work_products": [
-      {
-        "name": "Sized Backlog",
-        "description": "List of work items with relative size estimates"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "T-Shirt Estimation Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/t-shirt-estimation-template-for-dev-teams"
+          "url": "https://ludi.co/templates/t-shirt-estimation-template-for-dev-teams",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2347,10 +2440,6 @@
         "Reduced debate over precise hours or days "
       ]
     },
-    "practice_goal": [
-      "Simplicity",
-      "Communication"
-    ],
     "associated_practices": [
       {
         "target_practice": "Planning Poker",
@@ -2367,7 +2456,12 @@
     "type": "Risk Management Practice",
     "objective": "Identify and mitigate project risks before they materialize",
     "description": "A pre-mortem exercise that distinguishes between real threats (Tigers), perceived threats that aren't genuine (Paper Tigers), and unspoken issues (Elephants). It helps teams anticipate challenges proactively rather than looking backward.",
-    "method": "",
+    "practice_goal": [
+      "Transparency",
+      "Inspection",
+      "Courage"
+    ],
+    "method": "Agile",
     "activities": [
       {
         "sequence": 1,
@@ -2395,6 +2489,13 @@
         "description": "Create mitigation plans for priority risks"
       }
     ],
+    "work_products": [
+      {
+        "name": "Risk Mitigation Plan",
+        "description": "Actionable steps to address identified risks"
+      }
+    ],
+    "completion_criteria": "Risks identified and mitigation plans created.",
     "roles": [
       {
         "role": "Development Team",
@@ -2405,19 +2506,13 @@
         "responsibility": "Accountable"
       }
     ],
-    "work_products": [
-      {
-        "name": "Risk Mitigation Plan",
-        "description": "Actionable steps to address identified risks"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "Tigers, Paper Tigers, and Elephants Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/tigers-paper-tigers-and-elephants-futurespective"
+          "url": "https://ludi.co/templates/tigers-paper-tigers-and-elephants-futurespective",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2429,11 +2524,6 @@
         "Create psychological safety to discuss uncomfortable topics "
       ]
     },
-    "practice_goal": [
-      "Transparency",
-      "Inspection",
-      "Courage"
-    ],
     "associated_practices": [
       {
         "target_practice": "Sprint Retrospective",
@@ -2446,7 +2536,12 @@
     "type": "Risk Management Practice",
     "objective": "Uncover potential fatal flaws by imagining project failure",
     "description": "A pre-mortem technique where the team imagines the project has already failed and works backward to determine causes. It uses a cemetery metaphor with quadrants for Original Goals, Original Plan, What Went Wrong, and The Result .",
-    "method": "",
+    "practice_goal": [
+      "Inspection",
+      "Adaptation",
+      "Courage"
+    ],
+    "method": "Agile",
     "activities": [
       {
         "sequence": 1,
@@ -2474,16 +2569,17 @@
         "description": "Brainstorm preventative measures for high risks"
       }
     ],
-    "roles": [
-      {
-        "role": "Development Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "Mitigation Strategy",
         "description": "Preventative actions for identified failure points"
+      }
+    ],
+    "completion_criteria": "Risks identified and mitigation plans created.",
+    "roles": [
+      {
+        "role": "Development Team",
+        "responsibility": "Responsible"
       }
     ],
     "metrics": [],
@@ -2491,8 +2587,8 @@
       "guidelines": [
         {
           "name": "Graveyard of Gloom Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/graveyard-of-gloom-futurespective-template"
+          "url": "https://ludi.co/templates/graveyard-of-gloom-futurespective-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2503,11 +2599,6 @@
         "More thorough risk identification than traditional planning "
       ]
     },
-    "practice_goal": [
-      "Inspection",
-      "Adaptation",
-      "Courage"
-    ],
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
@@ -2520,7 +2611,11 @@
     "type": "Risk Management Practice",
     "objective": "Proactively identify and track potential roadblocks",
     "description": "A strategic planning framework that categorizes project variables into Risks (future problems), Assumptions (unverified beliefs), Issues (current problems), and Dependencies (external needs) . It provides a comprehensive view of factors impacting success.",
-    "method": "",
+    "practice_goal": [
+      "Transparency",
+      "Inspection"
+    ],
+    "method": "Agile",
     "activities": [
       {
         "sequence": 1,
@@ -2548,6 +2643,13 @@
         "description": "Set schedule for updating the RAID log"
       }
     ],
+    "work_products": [
+      {
+        "name": "RAID Log",
+        "description": "Documented list of risks, assumptions, issues, and dependencies"
+      }
+    ],
+    "completion_criteria": "RAID Log created and owners assigned.",
     "roles": [
       {
         "role": "Scrum Master",
@@ -2558,19 +2660,13 @@
         "responsibility": "Responsible"
       }
     ],
-    "work_products": [
-      {
-        "name": "RAID Log",
-        "description": "Documented list of risks, assumptions, issues, and dependencies"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "RAID Analysis Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/raid-analysis-futurespective-template"
+          "url": "https://ludi.co/templates/raid-analysis-futurespective-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2582,10 +2678,6 @@
         "Enhanced team alignment on project challenges "
       ]
     },
-    "practice_goal": [
-      "Transparency",
-      "Inspection"
-    ],
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
@@ -2598,6 +2690,10 @@
     "type": "Prioritization Practice",
     "objective": "Categorize features based on importance and urgency",
     "description": "A requirements prioritization technique that categorizes items into Must Have, Should Have, Could Have, and Won't Have . It helps teams build consensus and make informed decisions about resource allocation.",
+    "practice_goal": [
+      "Simplicity",
+      "Communication"
+    ],
     "method": "DSDM",
     "activities": [
       {
@@ -2626,6 +2722,13 @@
         "description": "Save prioritized backlog and assign owners"
       }
     ],
+    "work_products": [
+      {
+        "name": "Prioritized Backlog",
+        "description": "Backlog items sorted by MoSCoW categories"
+      }
+    ],
+    "completion_criteria": "Backlog items are categorized and prioritized.",
     "roles": [
       {
         "role": "Product Owner",
@@ -2640,19 +2743,13 @@
         "responsibility": "Responsible"
       }
     ],
-    "work_products": [
-      {
-        "name": "Prioritized Backlog",
-        "description": "Backlog items sorted by MoSCoW categories"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "MoSCoW Prioritization Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/moscow-prioritization-template-for-agile-planning"
+          "url": "https://ludi.co/templates/moscow-prioritization-template-for-agile-planning",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2663,10 +2760,6 @@
         "Simplifies complex decision-making "
       ]
     },
-    "practice_goal": [
-      "Simplicity",
-      "Communication"
-    ],
     "associated_practices": [
       {
         "target_practice": "Backlog Refinement",
@@ -2683,6 +2776,10 @@
     "type": "Prioritization Practice",
     "objective": "Make data-driven decisions by weighing value against effort",
     "description": "A 2x2 matrix framework that compares backlog items based on Business Value and Implementation Effort. Items are divided into Quick Wins, Major Strategic Items, Filler Tasks, and Time Sinks.",
+    "practice_goal": [
+      "Inspection",
+      "Adaptation"
+    ],
     "method": "Lean",
     "activities": [
       {
@@ -2711,6 +2808,13 @@
         "description": "Schedule Quick Wins and break down Strategic Items"
       }
     ],
+    "work_products": [
+      {
+        "name": "Prioritized Matrix",
+        "description": "Visual classification of backlog items"
+      }
+    ],
+    "completion_criteria": "Backlog items plotted on matrix.",
     "roles": [
       {
         "role": "Product Team",
@@ -2725,19 +2829,13 @@
         "responsibility": "Accountable"
       }
     ],
-    "work_products": [
-      {
-        "name": "Prioritized Matrix",
-        "description": "Visual classification of backlog items"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "Lean Prioritization Matrix Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/lean-prioritization-matrix-planning-template"
+          "url": "https://ludi.co/templates/lean-prioritization-matrix-planning-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2748,10 +2846,6 @@
         "Better resource allocation "
       ]
     },
-    "practice_goal": [
-      "Inspection",
-      "Adaptation"
-    ],
     "associated_practices": [
       {
         "target_practice": "Backlog Refinement",
@@ -2764,6 +2858,10 @@
     "type": "Discovery Practice",
     "objective": "Deeply understand users' needs, motivations, and frustrations",
     "description": "A collaborative canvas that organizes customer research into what users See, Hear, Say, Do, Think, and Feel (Pains and Gains). It helps teams move beyond assumptions to evidence-based insights.",
+    "practice_goal": [
+      "Communication",
+      "Feedback"
+    ],
     "method": "Design Thinking",
     "activities": [
       {
@@ -2787,16 +2885,17 @@
         "description": "Identify patterns and contradictions"
       }
     ],
-    "roles": [
-      {
-        "role": "Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "Empathy Map",
         "description": "Visual representation of user experience and mindset"
+      }
+    ],
+    "completion_criteria": "Empathy Map completed.",
+    "roles": [
+      {
+        "role": "Team",
+        "responsibility": "Responsible"
       }
     ],
     "metrics": [],
@@ -2804,8 +2903,8 @@
       "guidelines": [
         {
           "name": "Empathy Map Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/empathy-map-product-management-template"
+          "url": "https://ludi.co/templates/empathy-map-product-management-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2817,10 +2916,6 @@
         "Prioritizes features based on actual user needs ]"
       ]
     },
-    "practice_goal": [
-      "Communication",
-      "Feedback"
-    ],
     "associated_practices": [
       {
         "target_practice": "User Stories",
@@ -2832,8 +2927,12 @@
     "name": "Value Proposition Canvas",
     "type": "Discovery Practice",
     "objective": "Align product offerings with customer needs",
-    "description": "A framework that maps the Customer Profile (Jobs, Pains, Gains) to the Value Map (Products, Pain Relievers, Gain Creators). It ensures product-market fit by validating that features address verified customer needs, .",
-    "method": "",
+    "description": "A framework that maps the Customer Profile (Jobs, Pains, Gains) to the Value Map (Products, Pain Relievers, Gain Creators). It ensures product-market fit by validating that features address verified customer needs.",
+    "practice_goal": [
+      "Inspection",
+      "Adaptation"
+    ],
+    "method": "Design Thinking",
     "activities": [
       {
         "sequence": 1,
@@ -2861,16 +2960,17 @@
         "description": "Identify assumptions to validate"
       }
     ],
-    "roles": [
-      {
-        "role": "Product Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "Value Proposition Map",
         "description": "Visual alignment of customer needs and product value"
+      }
+    ],
+    "completion_criteria": "Customer Profile and Value Map completed.",
+    "roles": [
+      {
+        "role": "Product Team",
+        "responsibility": "Responsible"
       }
     ],
     "metrics": [],
@@ -2878,8 +2978,8 @@
       "guidelines": [
         {
           "name": "Value Proposition Canvas Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/value-proposition-canvas-template"
+          "url": "https://ludi.co/templates/value-proposition-canvas-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2891,10 +2991,6 @@
         "Validates assumptions before committing resources ]"
       ]
     },
-    "practice_goal": [
-      "Inspection",
-      "Adaptation"
-    ],
     "associated_practices": [
       {
         "target_practice": "User Stories",
@@ -2906,7 +3002,12 @@
     "name": "User Journey Mapping",
     "type": "Discovery Practice",
     "objective": "Track and improve user interactions across multiple touchpoints",
-    "description": "A visualization tool that maps the complete user experience sequence, capturing thoughts, feelings, pain points, and sentiment at each step, . It helps identify friction points and opportunities for improvement.",
+    "description": "A visualization tool that maps the complete user experience sequence, capturing thoughts, feelings, pain points, and sentiment at each step. It helps identify friction points and opportunities for improvement.",
+    "practice_goal": [
+      "Communication",
+      "Feedback",
+      "Inspection"
+    ],
     "method": "Design Thinking",
     "activities": [
       {
@@ -2940,16 +3041,17 @@
         "description": "Develop solutions for pain points"
       }
     ],
-    "roles": [
-      {
-        "role": "Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "User Journey Map",
         "description": "Visual timeline of user experience including sentiment"
+      }
+    ],
+    "completion_criteria": "User Journey Map completed.",
+    "roles": [
+      {
+        "role": "Team",
+        "responsibility": "Responsible"
       }
     ],
     "metrics": [],
@@ -2957,8 +3059,8 @@
       "guidelines": [
         {
           "name": "User Journey Mapping Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/user-journey-mapping-template"
+          "url": "https://ludi.co/templates/user-journey-mapping-template",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -2969,11 +3071,6 @@
         "Prioritizes improvements based on user impact"
       ]
     },
-    "practice_goal": [
-      "Communication",
-      "Feedback",
-      "Inspection"
-    ],
     "associated_practices": [
       {
         "target_practice": "Story Mapping",
@@ -2986,7 +3083,11 @@
     "type": "Strategy Practice",
     "objective": "Describe, visualize, and validate product vision and strategy",
     "description": "A strategic planning framework that aligns vision with market needs and business objectives. It covers Vision, Target Group, Needs, Product, and Business Goals, and extends to Competitors, Revenue, Costs, and Channels.",
-    "method": "",
+    "practice_goal": [
+      "Communication",
+      "Transparency"
+    ],
+    "method": "Product Management",
     "activities": [
       {
         "sequence": 1,
@@ -3014,6 +3115,13 @@
         "description": "Check for consistency and identify assumptions"
       }
     ],
+    "work_products": [
+      {
+        "name": "Product Vision Board",
+        "description": "One-page strategic overview of product and business model"
+      }
+    ],
+    "completion_criteria": "Vision Board completed.",
     "roles": [
       {
         "role": "Product Owner",
@@ -3024,19 +3132,13 @@
         "responsibility": "Responsible"
       }
     ],
-    "work_products": [
-      {
-        "name": "Product Vision Board",
-        "description": "One-page strategic overview of product and business model"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "Product Vision Board Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/extended-product-vision-board-template-for-planning"
+          "url": "https://ludi.co/templates/extended-product-vision-board-template-for-planning",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -3047,10 +3149,6 @@
         "Reduced risk through early validation"
       ]
     },
-    "practice_goal": [
-      "Communication",
-      "Transparency"
-    ],
     "associated_practices": [
       {
         "target_practice": "Sprint Planning",
@@ -3063,6 +3161,11 @@
     "type": "Validation Practice",
     "objective": "Test ideas and hypotheses methodically before full implementation",
     "description": "A collaborative framework for designing controlled tests for product ideas. It guides teams through defining the problem, hypothesis, methodology, audience, KPIs, and results.",
+    "practice_goal": [
+      "Inspection",
+      "Adaptation",
+      "Feedback"
+    ],
     "method": "Lean",
     "activities": [
       {
@@ -3091,16 +3194,17 @@
         "description": "Define metrics for success"
       }
     ],
-    "roles": [
-      {
-        "role": "Product Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "Experiment Design",
         "description": "Structured plan for validating a hypothesis"
+      }
+    ],
+    "completion_criteria": "Experiment Plan designed.",
+    "roles": [
+      {
+        "role": "Product Team",
+        "responsibility": "Responsible"
       }
     ],
     "metrics": [
@@ -3114,8 +3218,8 @@
       "guidelines": [
         {
           "name": "Experiment Planner Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/experiment-planner-template-for-product-testing"
+          "url": "https://ludi.co/templates/experiment-planner-template-for-product-testing",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -3127,11 +3231,6 @@
         "Data-driven decisions rather than opinions ]"
       ]
     },
-    "practice_goal": [
-      "Inspection",
-      "Adaptation",
-      "Feedback"
-    ],
     "associated_practices": [
       {
         "target_practice": "Opportunity Solution Trees",
@@ -3144,7 +3243,12 @@
     "type": "Team Building Practice",
     "objective": "Align team on identity, purpose, and ways of working",
     "description": "A visual alignment tool serving as a 'social contract' for teams. It covers nine sections: People/Roles, Common Goals, Purpose, Personal Goals, Values, Needs, Strengths, Weaknesses, and Rules/Activities.",
-    "method": "",
+    "practice_goal": [
+      "Communication",
+      "Self-Organization",
+      "Transparency"
+    ],
+    "method": "Agile",
     "activities": [
       {
         "sequence": 1,
@@ -3172,6 +3276,13 @@
         "description": "Establish working agreements"
       }
     ],
+    "work_products": [
+      {
+        "name": "Team Canvas",
+        "description": "Documented team agreements and identity"
+      }
+    ],
+    "completion_criteria": "Team Canvas completed and agreed upon.",
     "roles": [
       {
         "role": "Team Members",
@@ -3182,19 +3293,13 @@
         "responsibility": "Accountable"
       }
     ],
-    "work_products": [
-      {
-        "name": "Team Canvas",
-        "description": "Documented team agreements and identity"
-      }
-    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "Team Canvas Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/team-canvas-template-for-comprehensive-team-building"
+          "url": "https://ludi.co/templates/team-canvas-template-for-comprehensive-team-building",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -3205,11 +3310,6 @@
         "Improved psychological safety ]"
       ]
     },
-    "practice_goal": [
-      "Communication",
-      "Self-Organization",
-      "Transparency"
-    ],
     "associated_practices": [
       {
         "target_practice": "Daily Scrum",
@@ -3222,7 +3322,11 @@
     "type": "Governance Practice",
     "objective": "Clearly define roles and responsibilities for project tasks",
     "description": "A responsibility assignment framework that maps tasks to four involvement levels: Responsible, Accountable, Consulted, and Informed . It clarifies decision-making authority and prevents work duplication.",
-    "method": "",
+    "practice_goal": [
+      "Transparency",
+      "Communication"
+    ],
+    "method": "Project Management",
     "activities": [
       {
         "sequence": 1,
@@ -3245,16 +3349,17 @@
         "description": "Get explicit agreement from participants"
       }
     ],
-    "roles": [
-      {
-        "role": "Project Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "RACI Matrix",
         "description": "Grid mapping tasks to roles"
+      }
+    ],
+    "completion_criteria": "RACI Matrix completed.",
+    "roles": [
+      {
+        "role": "Project Team",
+        "responsibility": "Responsible"
       }
     ],
     "metrics": [],
@@ -3262,8 +3367,8 @@
       "guidelines": [
         {
           "name": "RACI Matrix Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/raci-matrix-template-for-project-responsibility-mapping"
+          "url": "https://ludi.co/templates/raci-matrix-template-for-project-responsibility-mapping",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -3275,10 +3380,6 @@
         "Prevents bottlenecks from unclear approvals ]"
       ]
     },
-    "practice_goal": [
-      "Transparency",
-      "Communication"
-    ],
     "associated_practices": [
       {
         "target_practice": "Daily Scrum",
@@ -3291,7 +3392,11 @@
     "type": "Governance Practice",
     "objective": "Identify, categorize, and strategize engagement with stakeholders",
     "description": "A visual technique using a 2x2 influence/interest matrix to categorize stakeholders into Manage Closely, Keep Satisfied, Keep Informed, and Monitor. It helps develop tailored communication strategies.",
-    "method": "",
+    "practice_goal": [
+      "Communication",
+      "Active Stakeholder Participation"
+    ],
+    "method": "Project Management",
     "activities": [
       {
         "sequence": 1,
@@ -3314,16 +3419,6 @@
         "description": "Create next steps for high-priority stakeholders"
       }
     ],
-    "roles": [
-      {
-        "role": "Project Manager",
-        "responsibility": "Accountable"
-      },
-      {
-        "role": "Team",
-        "responsibility": "Responsible"
-      }
-    ],
     "work_products": [
       {
         "name": "Stakeholder Map",
@@ -3334,13 +3429,24 @@
         "description": "Strategy for engaging each stakeholder group"
       }
     ],
+    "completion_criteria": "Stakeholder Map completed.",
+    "roles": [
+      {
+        "role": "Project Manager",
+        "responsibility": "Accountable"
+      },
+      {
+        "role": "Team",
+        "responsibility": "Responsible"
+      }
+    ],
     "metrics": [],
     "resources": {
       "guidelines": [
         {
           "name": "Stakeholder Mapping Template",
-          "type": "Blog Post",
-          "url": "https://ludi.co/templates/stakeholder-mapping-template-for-engagement-planning"
+          "url": "https://ludi.co/templates/stakeholder-mapping-template-for-engagement-planning",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -3352,10 +3458,6 @@
         "Create targeted, effective communication plans ]"
       ]
     },
-    "practice_goal": [
-      "Communication",
-      "Active Stakeholder Participation"
-    ],
     "associated_practices": [
       {
         "target_practice": "Sprint Review",
@@ -3364,109 +3466,16 @@
     ]
   },
   {
-    "name": "Value Stream Mapping (VSM)",
-    "type": "Analysis Practice",
-    "objective": "Visualize and improve material and information flow",
-    "description": "Diagramming every step involved in the material and information flows needed to bring a product from order to delivery. It identifies value-creating and non-value-creating actions to eliminate waste.",
-    "method": "Lean",
-    "practice_goal": [
-      "Transparency",
-      "Inspection",
-      "Adaptation",
-      "Communication"
-    ],
-    "activities": [
-      {
-        "sequence": 1,
-        "name": "Select Product Family",
-        "description": "Identify the product family to map."
-      },
-      {
-        "sequence": 2,
-        "name": "Create Current State Map",
-        "description": "Walk the flow and capture the actual condition of material and information flow (cycle times, inventory, etc.)."
-      },
-      {
-        "sequence": 3,
-        "name": "Create Future State Map",
-        "description": "Design the target condition using lean guidelines (Takt time, continuous flow, supermarkets)."
-      },
-      {
-        "sequence": 4,
-        "name": "Develop Implementation Plan",
-        "description": "Create a plan to move from current to future state."
-      }
-    ],
-    "work_products": [
-      {
-        "name": "Current State Map",
-        "description": "Visual diagram of current flow and metrics."
-      },
-      {
-        "name": "Future State Map",
-        "description": "Visual diagram of desired flow."
-      }
-    ],
-    "completion_criteria": "Future state map and implementation plan are agreed upon.",
-    "roles": [
-      {
-        "role": "Value Stream Manager",
-        "responsibility": "Accountable"
-      },
-      {
-        "role": "Cross-functional Team",
-        "responsibility": "Responsible"
-      }
-    ],
-    "metrics": [
-      {
-        "name": "Lead Time",
-        "unit": "Days/Hours",
-        "formula": "Total time from order to delivery"
-      },
-      {
-        "name": "Value Added Time",
-        "unit": "Minutes",
-        "formula": "Sum of cycle times"
-      }
-    ],
-    "resources": {
-      "guidelines": [
-        {
-          "name": "Learning to See",
-          "type": "book",
-          "url": "https://www.amazon.com.be/Learning-See-Value-Stream-Mapping-Eliminate/dp/0966784308"
-        }
-      ],
-      "pitfalls": [
-        "Mapping without walking the gemba",
-        "Focusing only on material flow and ignoring information flow"
-      ],
-      "benefits": [
-        "See the whole process",
-        "Identify sources of waste",
-        "Common language for process",
-        "Blueprint for implementation"
-      ]
-    },
-    "associated_practices": [
-      {
-        "target_practice": "Gemba Walk",
-        "association_type": "Dependency"
-      }
-    ]
-  },
-  {
     "name": "5 Whys",
     "type": "Problem Solving",
     "objective": "Discover the root cause of a problem",
     "description": "The practice of asking 'why' repeatedly (typically five times) whenever a problem is encountered in order to get beyond obvious symptoms to discover the underlying root cause.",
-    "method": "Lean",
     "practice_goal": [
       "Inspection",
       "Adaptation",
       "Simplicity"
     ],
+    "method": "Lean",
     "activities": [
       {
         "sequence": 1,
@@ -3522,13 +3531,13 @@
     "type": "Management Practice",
     "objective": "Grasp the current situation through direct observation",
     "description": "A management practice of going to the 'actual place' (gemba) where value is created to observe the process, interact with workers, and confirm data/facts firsthand, rather than relying on reports.",
-    "method": "Lean",
     "practice_goal": [
       "Transparency",
       "Inspection",
       "Communication",
       "Humility"
     ],
+    "method": "Lean",
     "activities": [
       {
         "sequence": 1,
@@ -3564,13 +3573,13 @@
       "guidelines": [
         {
           "name": "Gemba Walks",
-          "type": "book",
-          "url": "https://www.amazon.com.be/Gemba-Walks-Expanded-Jim-Womack/dp/193410938X"
+          "url": "https://www.amazon.com.be/Gemba-Walks-Expanded-Jim-Womack/dp/193410938X",
+          "type": "book"
         },
         {
           "name": "Gemba Walk : La méthode en 4 étapes",
-          "type": "Blog Post",
-          "url": "https://shizen.io/gemba-walk-methode/"
+          "url": "https://shizen.io/gemba-walk-methode/",
+          "type": "Blog Post"
         }
       ],
       "pitfalls": [
@@ -3590,13 +3599,13 @@
     "type": "Problem Solving",
     "objective": "Summarize problem-solving, status, or planning on a single sheet",
     "description": "The A3 Report is not merely a document; it is a structured problem-solving and continuous improvement process named after the ISO A3 paper size (approximately 11x17 inches) used to contain it. The physical constraint of the page forces the author to be concise, filter out noise, and focus only on the most critical facts and data. \n\nThe process follows the PDCA (Plan-Do-Check-Act) logic. It requires the author to engage in 'Nemawashi' (consensus building) by discussing the A3 with stakeholders one-on-one before presenting it formally. The A3 serves as a storyboard that guides the dialogue between a mentor and a learner, shifting the management style from 'command and control' to 'leading through questioning.' There are three primary types of A3s: Problem Solving, Proposal, and Status Reporting.",
-    "method": "Lean",
     "practice_goal": [
       "Communication",
       "Feedback",
       "Transparency",
       "Inspection"
     ],
+    "method": "Lean",
     "activities": [
       {
         "sequence": 1,
@@ -3651,8 +3660,8 @@
       "guidelines": [
         {
           "name": "Managing to Learn",
-          "type": "book",
-          "url": ""
+          "url": "",
+          "type": "book"
         }
       ],
       "pitfalls": [
