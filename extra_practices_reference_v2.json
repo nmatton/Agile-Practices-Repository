@@ -1,0 +1,169 @@
+ [
+   {
+    "name": "Limit Work in Progress (WIP)",
+    "objective": "Prevent multitasking inefficiencies and create a pull system.",
+    "description": "Setting constraints on how many items can exist in a specific state simultaneously. This prevents context switching, reduces queue sizes, and ensures new work is only started when there is capacity (pull system).",
+    "tags": [
+      "Sustainable Pace",
+      "Simplicity",
+      "Focus"
+    ],
+    "parent_method": "Kanban",
+    "activities": [
+      {
+        "sequence": 1,
+        "name": "Define Limits",
+        "description": "Set a maximum number of tickets for columns (e.g., 'Testing: Max 2')."
+      },
+      {
+        "sequence": 2,
+        "name": "Stop Starting",
+        "description": "Do not pull new work if the limit is reached."
+      },
+      {
+        "sequence": 3,
+        "name": "Start Finishing",
+        "description": "Swarm to clear blocked items to free up capacity."
+      }
+    ],
+    "work_products": [
+      {
+        "name": "WIP Policies",
+        "description": "Agreed upon limits displayed on the board."
+      }
+    ],
+    "completion_criteria": "WIP limits are respected.",
+    "roles": [
+      {
+        "role": "Team",
+        "responsibility": "Responsible"
+      }
+    ],
+    "benefits": [
+      "Reduces Lead Time.",
+      "Improves quality by reducing context switching.",
+      "Makes bottlenecks immediately visible."
+    ],
+    "pitfalls": [
+      "Setting limits too high (no tension created).",
+      "Ignoring limits when 'urgent' work arrives."
+    ],
+    "resources": [],
+    "metrics": [
+      {
+        "name": "Cycle Time",
+        "unit": "Days",
+        "formula": "$$\\text{Date Completed} - \\text{Date Started}$$"
+      },
+      {
+        "name": "Little's Law Application",
+        "unit": "Rate",
+        "formula": "$$\\text{Average WIP} = \\text{Throughput} \\times \\text{Average Cycle Time}$$"
+      }
+    ],
+    "associated_practices": [
+      {
+        "target_practice": "Visualize the Workflow",
+        "association_type": "Prerequisite"
+      }
+    ]
+  },
+    {
+    "name": "Collective Code Ownership",
+    "objective": "Prevent knowledge silos and bottlenecks by allowing anyone to edit any code.",
+    "description": "A policy where any developer can change any line of code in the system to add functionality or fix bugs. There are no 'owners' of specific modules. This relies heavily on a safety net of automated tests.",
+    "tags": [
+      "Collective Code Ownership",
+      "Collaboration",
+      "Speed"
+    ],
+    "parent_method": "Extreme Programming",
+    "activities": [
+      {
+        "sequence": 1,
+        "name": "Access",
+        "description": "Ensure all devs have access to all repositories."
+      },
+      {
+        "sequence": 2,
+        "name": "Modify",
+        "description": "Developers change whatever is needed to complete their story."
+      }
+    ],
+    "work_products": [],
+    "completion_criteria": "No gatekeepers prevent code changes.",
+    "roles": [
+      {
+        "role": "Developer",
+        "responsibility": "Responsible"
+      }
+    ],
+    "benefits": [
+      "Eliminates bottlenecks (waiting for 'the guy' who knows the module).",
+      "Distributes knowledge across the team."
+    ],
+    "pitfalls": [
+      "Lack of discipline leading to 'spaghetti code' (mitigated by TDD).",
+      "Dilution of responsibility ('someone else will fix it')."
+    ],
+    "resources": [],
+    "metrics": [],
+    "associated_practices": [
+      {
+        "target_practice": "Continuous Integration",
+        "association_type": "Enabler"
+      },
+      {
+        "target_practice": "Pair Programming",
+        "association_type": "Support"
+      }
+    ]
+  },
+    {
+    "name": "On-Site Customer",
+    "objective": "Provide immediate guidance and answer questions to avoid documentation delays.",
+    "description": "A real customer or empowered proxy sits with the team full-time to answer questions and prioritize work instantly. This replaces written specifications with real-time conversation and decision-making.",
+    "tags": [
+      "Communication",
+      "Feedback",
+      "Simplicity"
+    ],
+    "parent_method": "Extreme Programming",
+    "activities": [
+      {
+        "sequence": 1,
+        "name": "Collocate",
+        "description": "Customer sets up workspace with the developers."
+      },
+      {
+        "sequence": 2,
+        "name": "Clarify",
+        "description": "Customer answers questions as they arise."
+      }
+    ],
+    "work_products": [],
+    "completion_criteria": "Customer is accessible for immediate feedback.",
+    "roles": [
+      {
+        "role": "Customer",
+        "responsibility": "Responsible"
+      }
+    ],
+    "benefits": [
+      "Eliminates 'waiting for answer' delays.",
+      "Ensures the product built matches the need."
+    ],
+    "pitfalls": [
+      "The 'Customer' has no decision-making power.",
+      "The Customer becomes a bottleneck if they are the only source of truth."
+    ],
+    "resources": [],
+    "metrics": [],
+    "associated_practices": [
+      {
+        "target_practice": "User Stories",
+        "association_type": "Support"
+      }
+    ]
+  }
+]
